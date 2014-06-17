@@ -26,6 +26,6 @@
 
 #pragma mark *** Actions
 
--( IBAction ) takePicAction : (id) sender;
+-(IBAction)takePicAction:(id)sender;
 
 @end

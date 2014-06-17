@@ -14,7 +14,7 @@
 
 -( id ) init
 {
-    self = [super initWithWindowNibName:@"Camera"];
+    self = [super initWithWindowNibName:@"SNOPCamera"];
     
     return self;
 }
@@ -37,8 +37,8 @@
     [super registerNotificationObservers];
 }
 
-/*
--( IBAction ) takePicAction : (id) sender
+
+-(IBAction) takePicAction : (id) sender
 {
     [model powerCamera];
     
@@ -52,5 +52,4 @@
 
     [runStateField setStringValue:@"Taking a picture."];
 }
-*/
 @end
