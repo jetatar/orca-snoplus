@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface CameraController : OrcaObjectController
+@interface SNOPCameraController : OrcaObjectController
 {
     IBOutlet NSButton*      takePicButton;
     IBOutlet NSTextField*   runStateField;

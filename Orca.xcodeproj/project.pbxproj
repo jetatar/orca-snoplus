@@ -3111,10 +3111,10 @@
 		CED29CFE1482B02200BD3AB2 /* SIS3302Generic.nib in Resources */ = {isa = PBXBuildFile; fileRef = CED29CFB1482B02200BD3AB2 /* SIS3302Generic.nib */; };
 		CED38D1E165CDB6600358681 /* ANSIEscapeHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = CED38D1C165CDB6600358681 /* ANSIEscapeHelper.h */; };
 		CED38D1F165CDB6600358681 /* ANSIEscapeHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = CED38D1D165CDB6600358681 /* ANSIEscapeHelper.m */; };
-		DB35A70B195054FD00824DF5 /* CameraController.h in Headers */ = {isa = PBXBuildFile; fileRef = DB35A706195054FD00824DF5 /* CameraController.h */; };
-		DB35A70C195054FD00824DF5 /* CameraController.m in Sources */ = {isa = PBXBuildFile; fileRef = DB35A707195054FD00824DF5 /* CameraController.m */; };
-		DB35A70D195054FD00824DF5 /* CameraModel.h in Headers */ = {isa = PBXBuildFile; fileRef = DB35A708195054FD00824DF5 /* CameraModel.h */; };
-		DB35A70E195054FD00824DF5 /* CameraModel.m in Sources */ = {isa = PBXBuildFile; fileRef = DB35A709195054FD00824DF5 /* CameraModel.m */; };
+		DB35A70B195054FD00824DF5 /* SNOPCameraController.h in Headers */ = {isa = PBXBuildFile; fileRef = DB35A706195054FD00824DF5 /* SNOPCameraController.h */; };
+		DB35A70C195054FD00824DF5 /* SNOPCameraController.m in Sources */ = {isa = PBXBuildFile; fileRef = DB35A707195054FD00824DF5 /* SNOPCameraController.m */; };
+		DB35A70D195054FD00824DF5 /* SNOPCameraModel.h in Headers */ = {isa = PBXBuildFile; fileRef = DB35A708195054FD00824DF5 /* SNOPCameraModel.h */; };
+		DB35A70E195054FD00824DF5 /* SNOPCameraModel.m in Sources */ = {isa = PBXBuildFile; fileRef = DB35A709195054FD00824DF5 /* SNOPCameraModel.m */; };
 		DB35A70F195054FD00824DF5 /* CameraPic.jpg in Resources */ = {isa = PBXBuildFile; fileRef = DB35A70A195054FD00824DF5 /* CameraPic.jpg */; };
 		DB704A0F18EBA4D100839B42 /* ELLIEController.h in Headers */ = {isa = PBXBuildFile; fileRef = DB704A0D18EBA4D100839B42 /* ELLIEController.h */; };
 		DB704A1018EBA4D100839B42 /* ELLIEController.m in Sources */ = {isa = PBXBuildFile; fileRef = DB704A0E18EBA4D100839B42 /* ELLIEController.m */; };
@@ -6390,10 +6390,10 @@
 		CED29CFB1482B02200BD3AB2 /* SIS3302Generic.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; path = SIS3302Generic.nib; sourceTree = "<group>"; };
 		CED38D1C165CDB6600358681 /* ANSIEscapeHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ANSIEscapeHelper.h; sourceTree = "<group>"; };
 		CED38D1D165CDB6600358681 /* ANSIEscapeHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ANSIEscapeHelper.m; sourceTree = "<group>"; };
-		DB35A706195054FD00824DF5 /* CameraController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraController.h; sourceTree = "<group>"; };
-		DB35A707195054FD00824DF5 /* CameraController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CameraController.m; sourceTree = "<group>"; };
-		DB35A708195054FD00824DF5 /* CameraModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraModel.h; sourceTree = "<group>"; };
-		DB35A709195054FD00824DF5 /* CameraModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CameraModel.m; sourceTree = "<group>"; };
+		DB35A706195054FD00824DF5 /* SNOPCameraController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNOPCameraController.h; sourceTree = "<group>"; };
+		DB35A707195054FD00824DF5 /* SNOPCameraController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SNOPCameraController.m; sourceTree = "<group>"; };
+		DB35A708195054FD00824DF5 /* SNOPCameraModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNOPCameraModel.h; sourceTree = "<group>"; };
+		DB35A709195054FD00824DF5 /* SNOPCameraModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SNOPCameraModel.m; sourceTree = "<group>"; };
 		DB35A70A195054FD00824DF5 /* CameraPic.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = CameraPic.jpg; sourceTree = "<group>"; };
 		DB704A0D18EBA4D100839B42 /* ELLIEController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ELLIEController.h; sourceTree = "<group>"; };
 		DB704A0E18EBA4D100839B42 /* ELLIEController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ELLIEController.m; sourceTree = "<group>"; };
@@ -13114,10 +13114,10 @@
 			isa = PBXGroup;
 			children = (
 				DBB4D471195054CA00E7BB43 /* SNOPCamera.xib */,
-				DB35A706195054FD00824DF5 /* CameraController.h */,
-				DB35A707195054FD00824DF5 /* CameraController.m */,
-				DB35A708195054FD00824DF5 /* CameraModel.h */,
-				DB35A709195054FD00824DF5 /* CameraModel.m */,
+				DB35A706195054FD00824DF5 /* SNOPCameraController.h */,
+				DB35A707195054FD00824DF5 /* SNOPCameraController.m */,
+				DB35A708195054FD00824DF5 /* SNOPCameraModel.h */,
+				DB35A709195054FD00824DF5 /* SNOPCameraModel.m */,
 				DB35A70A195054FD00824DF5 /* CameraPic.jpg */,
 			);
 			path = Camera;
@@ -14742,8 +14742,8 @@
 				84E00577186637F9002E38F7 /* ORFileGetterOp.h in Headers */,
 				DB704A0F18EBA4D100839B42 /* ELLIEController.h in Headers */,
 				DB704A1318EBA4E100839B42 /* ELLIEModel.h in Headers */,
-				DB35A70B195054FD00824DF5 /* CameraController.h in Headers */,
-				DB35A70D195054FD00824DF5 /* CameraModel.h in Headers */,
+				DB35A70B195054FD00824DF5 /* SNOPCameraController.h in Headers */,
+				DB35A70D195054FD00824DF5 /* SNOPCameraModel.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -16736,8 +16736,8 @@
 				84E00578186637F9002E38F7 /* ORFileGetterOp.m in Sources */,
 				DB704A1018EBA4D100839B42 /* ELLIEController.m in Sources */,
 				DB704A1418EBA4E100839B42 /* ELLIEModel.m in Sources */,
-				DB35A70C195054FD00824DF5 /* CameraController.m in Sources */,
-				DB35A70E195054FD00824DF5 /* CameraModel.m in Sources */,
+				DB35A70C195054FD00824DF5 /* SNOPCameraController.m in Sources */,
+				DB35A70E195054FD00824DF5 /* SNOPCameraModel.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -6,11 +6,11 @@
 //
 //
 
-#import "CameraController.h"
-#import "CameraModel.h"
+#import "SNOPCameraController.h"
+#import "SNOPCameraModel.h"
 
 
-@implementation CameraController
+@implementation SNOPCameraController
 
 -( id ) init
 {

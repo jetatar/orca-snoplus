@@ -7,9 +7,10 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "SNOPCameraController.h"
 
-// Create a class ORCamModel which inherits from OrcaObject
-@interface CameraModel : OrcaObject
+// Create a class SNOPCameraModel which inherits from OrcaObject
+@interface SNOPCameraModel : OrcaObject
 {
     BOOL isRunning;
 }

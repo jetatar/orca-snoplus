@@ -6,12 +6,12 @@
 //
 //
 
-#import "CameraModel.h"
+#import "SNOPCameraModel.h"
 #import "SBC_Link.h"
 #import "SNOCmds.h"
 
 
-@implementation CameraModel
+@implementation SNOPCameraModel
 
 
 - (void) setUpImage
@@ -22,7 +22,7 @@
 
 - (void) makeMainController
 {
-    [self linkToController:@"CameraController"];
+    [self linkToController:@"SNOPCameraController"];
 }
 
 
