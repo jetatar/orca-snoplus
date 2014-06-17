@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 
 // Create a class ORCamModel which inherits from OrcaObject
-@interface ORCamModel : OrcaObject
+@interface CameraModel : OrcaObject
 {
     BOOL isRunning;
 }

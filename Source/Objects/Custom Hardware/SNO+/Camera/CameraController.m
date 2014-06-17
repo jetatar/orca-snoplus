@@ -10,7 +10,7 @@
 #import "CameraModel.h"
 
 
-@implementation ORCamController
+@implementation CameraController
 
 -( id ) init
 {

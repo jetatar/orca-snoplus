@@ -11,7 +11,7 @@
 #import "SNOCmds.h"
 
 
-@implementation ORCamModel
+@implementation CameraModel
 
 
 - (void) setUpImage
