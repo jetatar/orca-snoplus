@@ -26,6 +26,6 @@
 
 #pragma mark *** Actions
 
--(IBAction)takePicAction:(id)sender;
+-(IBAction)onTakePicAction:(id)sender;
 
 @end

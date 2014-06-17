@@ -38,7 +38,7 @@
 }
 
 
--(IBAction) takePicAction : (id) sender
+-(IBAction)onTakePicAction:(id)sender
 {
     [model powerCamera];
     
