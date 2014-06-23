@@ -3066,6 +3066,12 @@
 		B38DEE4B14E02B40003914FF /* ORADVME1314Controller.m in Sources */ = {isa = PBXBuildFile; fileRef = B38DEE4514E02B40003914FF /* ORADVME1314Controller.m */; };
 		B38DEE4C14E02B40003914FF /* ORADVME1314Model.h in Headers */ = {isa = PBXBuildFile; fileRef = B38DEE4614E02B40003914FF /* ORADVME1314Model.h */; };
 		B38DEE4D14E02B40003914FF /* ORADVME1314Model.m in Sources */ = {isa = PBXBuildFile; fileRef = B38DEE4714E02B40003914FF /* ORADVME1314Model.m */; };
+		C55DE7BD192A7EF200F21C9C /* Camera.xib in Resources */ = {isa = PBXBuildFile; fileRef = C55DE7BC192A7EF200F21C9C /* Camera.xib */; };
+		C55DE7BF192ACD2700F21C9C /* CameraPic.jpg in Resources */ = {isa = PBXBuildFile; fileRef = C55DE7BE192ACD2600F21C9C /* CameraPic.jpg */; };
+		C5916CBA1916C8B300E62B89 /* CameraController.h in Headers */ = {isa = PBXBuildFile; fileRef = C5916CB81916C8B300E62B89 /* CameraController.h */; };
+		C5916CBB1916C8B300E62B89 /* CameraController.m in Sources */ = {isa = PBXBuildFile; fileRef = C5916CB91916C8B300E62B89 /* CameraController.m */; };
+		C5916CBE191B4BDA00E62B89 /* CameraModel.h in Headers */ = {isa = PBXBuildFile; fileRef = C5916CBC191B4BD900E62B89 /* CameraModel.h */; };
+		C5916CBF191B4BDA00E62B89 /* CameraModel.m in Sources */ = {isa = PBXBuildFile; fileRef = C5916CBD191B4BDA00E62B89 /* CameraModel.m */; };
 		CE0216BC1512139A00456EB7 /* nEDMCoil.nib in Resources */ = {isa = PBXBuildFile; fileRef = CE0216B71512139A00456EB7 /* nEDMCoil.nib */; };
 		CE0216BD1512139A00456EB7 /* ORnEDMCoilController.h in Headers */ = {isa = PBXBuildFile; fileRef = CE0216B81512139A00456EB7 /* ORnEDMCoilController.h */; };
 		CE0216BE1512139A00456EB7 /* ORnEDMCoilController.m in Sources */ = {isa = PBXBuildFile; fileRef = CE0216B91512139A00456EB7 /* ORnEDMCoilController.m */; };
@@ -6338,6 +6344,12 @@
 		B38DEE4514E02B40003914FF /* ORADVME1314Controller.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ORADVME1314Controller.m; sourceTree = "<group>"; };
 		B38DEE4614E02B40003914FF /* ORADVME1314Model.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ORADVME1314Model.h; sourceTree = "<group>"; };
 		B38DEE4714E02B40003914FF /* ORADVME1314Model.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ORADVME1314Model.m; sourceTree = "<group>"; };
+		C55DE7BC192A7EF200F21C9C /* Camera.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = Camera.xib; sourceTree = "<group>"; };
+		C55DE7BE192ACD2600F21C9C /* CameraPic.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = CameraPic.jpg; sourceTree = "<group>"; };
+		C5916CB81916C8B300E62B89 /* CameraController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CameraController.h; path = ../Camera/CameraController.h; sourceTree = "<group>"; };
+		C5916CB91916C8B300E62B89 /* CameraController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CameraController.m; path = ../Camera/CameraController.m; sourceTree = "<group>"; };
+		C5916CBC191B4BD900E62B89 /* CameraModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CameraModel.h; path = ../Camera/CameraModel.h; sourceTree = "<group>"; };
+		C5916CBD191B4BDA00E62B89 /* CameraModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CameraModel.m; path = ../Camera/CameraModel.m; sourceTree = "<group>"; };
 		CE0216B71512139A00456EB7 /* nEDMCoil.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; path = nEDMCoil.nib; sourceTree = "<group>"; };
 		CE0216B81512139A00456EB7 /* ORnEDMCoilController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ORnEDMCoilController.h; sourceTree = "<group>"; };
 		CE0216B91512139A00456EB7 /* ORnEDMCoilController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ORnEDMCoilController.m; sourceTree = "<group>"; };
@@ -10422,6 +10434,7 @@
 			isa = PBXGroup;
 			children = (
 				DBEC755318EB9E9B0077D493 /* ELLIE */,
+				C5916CB519142FF500E62B89 /* Camera */,
 				8499FF8E0DC9090400E82DB4 /* SNO Base Classes */,
 				8499FE820DC8E9B700E82DB4 /* SNOCrate */,
 				844B42B60DE5D5680061AE80 /* SNORack */,
@@ -13045,6 +13058,19 @@
 			path = Advanet;
 			sourceTree = "<group>";
 		};
+		C5916CB519142FF500E62B89 /* Camera */ = {
+			isa = PBXGroup;
+			children = (
+				C55DE7BC192A7EF200F21C9C /* Camera.xib */,
+				C5916CB81916C8B300E62B89 /* CameraController.h */,
+				C5916CB91916C8B300E62B89 /* CameraController.m */,
+				C55DE7BE192ACD2600F21C9C /* CameraPic.jpg */,
+				C5916CBC191B4BD900E62B89 /* CameraModel.h */,
+				C5916CBD191B4BDA00E62B89 /* CameraModel.m */,
+			);
+			path = Camera;
+			sourceTree = "<group>";
+		};
 		CE0216B51512139A00456EB7 /* nEDM */ = {
 			isa = PBXGroup;
 			children = (
@@ -14716,6 +14742,8 @@
 				84E00577186637F9002E38F7 /* ORFileGetterOp.h in Headers */,
 				DB704A0F18EBA4D100839B42 /* ELLIEController.h in Headers */,
 				DB704A1318EBA4E100839B42 /* ELLIEModel.h in Headers */,
+				C5916CBA1916C8B300E62B89 /* CameraController.h in Headers */,
+				C5916CBE191B4BDA00E62B89 /* CameraModel.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -15653,6 +15681,8 @@
 				844CBDD11866010F0012AA3B /* scpExpectGetScript in Resources */,
 				DBEC755518EB9E9B0077D493 /* ellie.gif in Resources */,
 				DB704A1618EBA61E00839B42 /* ellie.xib in Resources */,
+				C55DE7BD192A7EF200F21C9C /* Camera.xib in Resources */,
+				C55DE7BF192ACD2700F21C9C /* CameraPic.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -16706,6 +16736,8 @@
 				84E00578186637F9002E38F7 /* ORFileGetterOp.m in Sources */,
 				DB704A1018EBA4D100839B42 /* ELLIEController.m in Sources */,
 				DB704A1418EBA4E100839B42 /* ELLIEModel.m in Sources */,
+				C5916CBB1916C8B300E62B89 /* CameraController.m in Sources */,
+				C5916CBF191B4BDA00E62B89 /* CameraModel.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
