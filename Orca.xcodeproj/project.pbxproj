@@ -3111,11 +3111,17 @@
 		CED29CFE1482B02200BD3AB2 /* SIS3302Generic.nib in Resources */ = {isa = PBXBuildFile; fileRef = CED29CFB1482B02200BD3AB2 /* SIS3302Generic.nib */; };
 		CED38D1E165CDB6600358681 /* ANSIEscapeHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = CED38D1C165CDB6600358681 /* ANSIEscapeHelper.h */; };
 		CED38D1F165CDB6600358681 /* ANSIEscapeHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = CED38D1D165CDB6600358681 /* ANSIEscapeHelper.m */; };
+		DB35A70B195054FD00824DF5 /* SNOPCameraController.h in Headers */ = {isa = PBXBuildFile; fileRef = DB35A706195054FD00824DF5 /* SNOPCameraController.h */; };
+		DB35A70C195054FD00824DF5 /* SNOPCameraController.m in Sources */ = {isa = PBXBuildFile; fileRef = DB35A707195054FD00824DF5 /* SNOPCameraController.m */; };
+		DB35A70D195054FD00824DF5 /* SNOPCameraModel.h in Headers */ = {isa = PBXBuildFile; fileRef = DB35A708195054FD00824DF5 /* SNOPCameraModel.h */; };
+		DB35A70E195054FD00824DF5 /* SNOPCameraModel.m in Sources */ = {isa = PBXBuildFile; fileRef = DB35A709195054FD00824DF5 /* SNOPCameraModel.m */; };
+		DB35A70F195054FD00824DF5 /* CameraPic.jpg in Resources */ = {isa = PBXBuildFile; fileRef = DB35A70A195054FD00824DF5 /* CameraPic.jpg */; };
 		DB704A0F18EBA4D100839B42 /* ELLIEController.h in Headers */ = {isa = PBXBuildFile; fileRef = DB704A0D18EBA4D100839B42 /* ELLIEController.h */; };
 		DB704A1018EBA4D100839B42 /* ELLIEController.m in Sources */ = {isa = PBXBuildFile; fileRef = DB704A0E18EBA4D100839B42 /* ELLIEController.m */; };
 		DB704A1318EBA4E100839B42 /* ELLIEModel.h in Headers */ = {isa = PBXBuildFile; fileRef = DB704A1118EBA4E100839B42 /* ELLIEModel.h */; };
 		DB704A1418EBA4E100839B42 /* ELLIEModel.m in Sources */ = {isa = PBXBuildFile; fileRef = DB704A1218EBA4E100839B42 /* ELLIEModel.m */; };
 		DB704A1618EBA61E00839B42 /* ellie.xib in Resources */ = {isa = PBXBuildFile; fileRef = DB704A1518EBA61E00839B42 /* ellie.xib */; };
+		DBB4D472195054CA00E7BB43 /* SNOPCamera.xib in Resources */ = {isa = PBXBuildFile; fileRef = DBB4D471195054CA00E7BB43 /* SNOPCamera.xib */; };
 		DBEC755518EB9E9B0077D493 /* ellie.gif in Resources */ = {isa = PBXBuildFile; fileRef = DBEC755418EB9E9B0077D493 /* ellie.gif */; };
 		EF37879212DFFF81003C814E /* YAJL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF37879112DFFF81003C814E /* YAJL.framework */; };
 		EF3787A012DFFF90003C814E /* YAJL.framework in Frameworks_Copy */ = {isa = PBXBuildFile; fileRef = EF37879112DFFF81003C814E /* YAJL.framework */; };
@@ -6384,11 +6390,17 @@
 		CED29CFB1482B02200BD3AB2 /* SIS3302Generic.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; path = SIS3302Generic.nib; sourceTree = "<group>"; };
 		CED38D1C165CDB6600358681 /* ANSIEscapeHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ANSIEscapeHelper.h; sourceTree = "<group>"; };
 		CED38D1D165CDB6600358681 /* ANSIEscapeHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ANSIEscapeHelper.m; sourceTree = "<group>"; };
+		DB35A706195054FD00824DF5 /* SNOPCameraController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNOPCameraController.h; sourceTree = "<group>"; };
+		DB35A707195054FD00824DF5 /* SNOPCameraController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SNOPCameraController.m; sourceTree = "<group>"; };
+		DB35A708195054FD00824DF5 /* SNOPCameraModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNOPCameraModel.h; sourceTree = "<group>"; };
+		DB35A709195054FD00824DF5 /* SNOPCameraModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SNOPCameraModel.m; sourceTree = "<group>"; };
+		DB35A70A195054FD00824DF5 /* CameraPic.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = CameraPic.jpg; sourceTree = "<group>"; };
 		DB704A0D18EBA4D100839B42 /* ELLIEController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ELLIEController.h; sourceTree = "<group>"; };
 		DB704A0E18EBA4D100839B42 /* ELLIEController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ELLIEController.m; sourceTree = "<group>"; };
 		DB704A1118EBA4E100839B42 /* ELLIEModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ELLIEModel.h; sourceTree = "<group>"; };
 		DB704A1218EBA4E100839B42 /* ELLIEModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ELLIEModel.m; sourceTree = "<group>"; };
 		DB704A1518EBA61E00839B42 /* ellie.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ellie.xib; sourceTree = "<group>"; };
+		DBB4D471195054CA00E7BB43 /* SNOPCamera.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = SNOPCamera.xib; path = ../../../../../SNOPCamera.xib; sourceTree = "<group>"; };
 		DBEC755418EB9E9B0077D493 /* ellie.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = ellie.gif; sourceTree = "<group>"; };
 		EF37879112DFFF81003C814E /* YAJL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = YAJL.framework; path = Frameworks/YAJL.framework; sourceTree = "<group>"; };
 		EF69C430116E5DC3008ABADC /* ORSNOCrateReadout.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ORSNOCrateReadout.cc; sourceTree = "<group>"; };
@@ -10421,6 +10433,7 @@
 		8499FE810DC8E86800E82DB4 /* SNO+ */ = {
 			isa = PBXGroup;
 			children = (
+				DB35A705195054FD00824DF5 /* Camera */,
 				DBEC755318EB9E9B0077D493 /* ELLIE */,
 				8499FF8E0DC9090400E82DB4 /* SNO Base Classes */,
 				8499FE820DC8E9B700E82DB4 /* SNOCrate */,
@@ -13097,6 +13110,19 @@
 			path = "Source/Objects/Misc Objects/ANSIEscapeHelper";
 			sourceTree = SOURCE_ROOT;
 		};
+		DB35A705195054FD00824DF5 /* Camera */ = {
+			isa = PBXGroup;
+			children = (
+				DBB4D471195054CA00E7BB43 /* SNOPCamera.xib */,
+				DB35A706195054FD00824DF5 /* SNOPCameraController.h */,
+				DB35A707195054FD00824DF5 /* SNOPCameraController.m */,
+				DB35A708195054FD00824DF5 /* SNOPCameraModel.h */,
+				DB35A709195054FD00824DF5 /* SNOPCameraModel.m */,
+				DB35A70A195054FD00824DF5 /* CameraPic.jpg */,
+			);
+			path = Camera;
+			sourceTree = "<group>";
+		};
 		DBEC755318EB9E9B0077D493 /* ELLIE */ = {
 			isa = PBXGroup;
 			children = (
@@ -14716,6 +14742,8 @@
 				84E00577186637F9002E38F7 /* ORFileGetterOp.h in Headers */,
 				DB704A0F18EBA4D100839B42 /* ELLIEController.h in Headers */,
 				DB704A1318EBA4E100839B42 /* ELLIEModel.h in Headers */,
+				DB35A70B195054FD00824DF5 /* SNOPCameraController.h in Headers */,
+				DB35A70D195054FD00824DF5 /* SNOPCameraModel.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -15653,6 +15681,8 @@
 				844CBDD11866010F0012AA3B /* scpExpectGetScript in Resources */,
 				DBEC755518EB9E9B0077D493 /* ellie.gif in Resources */,
 				DB704A1618EBA61E00839B42 /* ellie.xib in Resources */,
+				DBB4D472195054CA00E7BB43 /* SNOPCamera.xib in Resources */,
+				DB35A70F195054FD00824DF5 /* CameraPic.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -16706,6 +16736,8 @@
 				84E00578186637F9002E38F7 /* ORFileGetterOp.m in Sources */,
 				DB704A1018EBA4D100839B42 /* ELLIEController.m in Sources */,
 				DB704A1418EBA4E100839B42 /* ELLIEModel.m in Sources */,
+				DB35A70C195054FD00824DF5 /* SNOPCameraController.m in Sources */,
+				DB35A70E195054FD00824DF5 /* SNOPCameraModel.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
