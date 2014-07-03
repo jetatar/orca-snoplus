@@ -20,7 +20,7 @@
 - (void) wakeUp;
 - (void) sleep;
 - (void) dealloc;
-- (id)   adapter;
+//- (id)   adapter;
 - (BOOL) adapterIsSBC;
 - (void) killPTPCameraProcess;
 - (void) powerCamera;

@@ -65,6 +65,7 @@ void processSNOCommand(SBC_Packet* aPacket)
 		case kSNOMtcatResetAll:mtcatResetAll(aPacket); break;
 		case kSNOMtcatLoadCrateMask: mtcatLoadCrateMask(aPacket); break;
         case kSNOMtcTellReadout: mtcTellReadout(aPacket); break;
+        case kSNOCameraResetAll: cameraResetAll( aPacket ); break;
 	}
 }
 
@@ -1364,7 +1365,7 @@ void cameraResetAll( SBC_Packet* aPacket )
     
     dlerror( );
     
-    reset_all = ( int(*)() )dlsym( hdl, "reset_all" );
+    reset_all = ( int(*)() )dlsym( hdl, "turn_camera_on" );
     
     if( (dl_err = dlerror()) != NULL )
     {

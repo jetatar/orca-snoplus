@@ -56,17 +56,24 @@
 	id anAdapter = [ [self guardian] adapter ];
 
 	if( anAdapter )
+    {
+        NSLog( @"%@", [anAdapter description] );
         return anAdapter;
-    
+    }
     else
-        [NSException raise:@"No XL2" format:@"Check that the crate has an XL2"];
-
+    {
+        NSLog( @"Couldn't send appropriate adapter" );
+        [NSException raise:@"No XL2" format:@"Check that the crate has SBC"];
+    }
+        
 	return nil;
 }
 
 
 - (BOOL) adapterIsSBC
 {
+    NSLog( @"Looking for an SBC adapter...");
+    
 	return [[self adapter] isKindOfClass:NSClassFromString(@"ORVmecpuModel")];
 }
 
@@ -89,8 +96,12 @@
 
 - (void) powerCamera
 {
+    NSLog( @"Powering camera...\n");
+    
     if( [self adapterIsSBC] )
     {
+        NSLog( @"Adapter is SBC" );
+        
         long errorCode = 0;
         SBC_Packet aPacket;
         
@@ -106,6 +117,8 @@
             [ [[self adapter] sbcLink] send: &aPacket receive: &aPacket];
             unsigned long* responsePtr  = (unsigned long*) aPacket.payload;
             errorCode                   = responsePtr[0];
+
+            NSLog( @"ErrorCode: %d", errorCode);
             
             if( errorCode )
             {
