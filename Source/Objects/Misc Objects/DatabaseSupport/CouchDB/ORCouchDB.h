@@ -240,6 +240,7 @@
 - (NSInteger) operationCount;
 @end
 
+// Adds ORCouchDB methods to NSObject.
 @interface NSObject (ORCouchDB)
 - (void) couchDBResult:(id)aResult tag:(NSString*)aTag op:(id)anOp;
 - (void) startingSweep;

@@ -52,7 +52,7 @@ enum {
 @class ORCommandList;
 @class ORCouchDB;
 
-
+// <> indicate that the class ORXL3Model conforms to the ORDataTaker protocol.  ORXL3Model must provide implementations for the required methods in ORDataTaker.  There is no need to redeclare the protocol methods in the class interface - the adoption of the protocol is sufficient.
 @interface ORXL3Model : ORSNOCard <ORDataTaker>
 {
 	XL3_Link*       xl3Link;

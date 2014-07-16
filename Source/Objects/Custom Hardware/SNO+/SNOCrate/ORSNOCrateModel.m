@@ -80,7 +80,7 @@ NSString* ORSNOCrateSlotChanged = @"ORSNOCrateSlotChanged";
 - (void) initCrateUsingXL3:(BOOL) loadTheFEC32XilinxFile phase:(int) phase;
 @end
 
-
+// ORSNOCrateModel object's methods code.
 @implementation ORSNOCrateModel
 
 #pragma mark •••initialization
@@ -375,7 +375,7 @@ NSString* ORSNOCrateSlotChanged = @"ORSNOCrateSlotChanged";
 	return 1;
 }
 
-
+// NSClassFromString returns a class object named ORXL3Model, or nil.
 - (BOOL) adapterIsXL3
 {
 	return [[self adapter] isKindOfClass:NSClassFromString(@"ORXL3Model")];

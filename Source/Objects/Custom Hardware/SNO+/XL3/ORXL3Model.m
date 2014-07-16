@@ -93,6 +93,8 @@ NSString* ORXL3ModelXl3VltThresholdInInitChanged = @"ORXL3ModelXl3VltThresholdIn
 
 extern NSString* ORSNOPRequestHVStatus;
 
+// Objective-C has no totally private methods.  The reason this is done in the .m file is because it is invisible to outside callers, but it is not private.  If someone knows the method signature and ignores the compiler warnings they can call it from outside.
+
 @interface ORXL3Model (private)
 - (void) doBasicOp;
 - (NSString*) stringDate;
@@ -1865,29 +1867,55 @@ void SwapLongBlock(void* p, int32_t n)
     }//synchronized
 }
 
+
+// implementation of ORXL3Model
+// a database helper
 - (void) ecalToOrca
 {
+    // define slot variable
     unsigned short slot;
+
+    // 0UL - treat setEcal_received as a 64-bit unsigned long 0.
+    // i.e: create a variable setEcal_received and asign it a unsigned long 0.
     [self setEcal_received:0UL];
-    for (slot=0; slot<16; slot++) {
+    
+    // Iterate through slots requesting ECAL docs for every slot in a create.
+    for( slot = 0; slot < 16; slot++ )
+    {
+        // Create a request string for each slot and crate.
         NSString* requestString = [NSString stringWithFormat:@"_design/penn_daq_views/_view/get_fec_by_generated?descending=true&startkey=[%d,%d,{}]&endkey=[%d,%d,\"\"]&limit=1",[self crateNumber], slot, [self crateNumber], slot];
+        
         NSString* tagString = [NSString stringWithFormat:@"%@.%d.%d", kDebugDbEcalDocGot, [self crateNumber], slot];
+        
         //NSLog(@"%@ slot %hd request: %@ tag: %@\n", [[self xl3Link] crateName], slot, requestString, tagString);
+        // Create an object debugDBRef.  Call debugDBRef to get document from CouchDB with an ID and a tag
+        
         [[self debugDBRef] getDocumentId:requestString tag:tagString];
     }
+    
     NSLog(@"%@ ECAL docs requested from debugDB\n", [[self xl3Link] crateName]);
+    
     [self setEcalToOrcaInProgress:YES];
+    
+    // performSelector is like function pointers.
+    // similar to [self ecalToOrcaDocumentsReceived]
+    // withObject:nil - no arguments to pass
+    // delay the method call for 10 seconds.
     [self performSelector:@selector(ecalToOrcaDocumentsReceived) withObject:nil afterDelay:10.0];
 }
 
 - (void) ecalToOrcaDocumentsReceived
 {
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(ecalToOrcaDocumentsReceived) object:nil];
-    if (![self ecalToOrcaInProgress]) { //killed already
+
+    if( ![self ecalToOrcaInProgress] )
+    { //killed already
         return;
     }
     
-    if ([self ecal_received] != 0xffff) {
+    // 0xffff is a 16 bit number with all bits set to 1.
+    if( [self ecal_received] != 0xffff )
+    {
         NSMutableString* msg = [[NSMutableString alloc] initWithFormat:
                                 @"%@ didn't receive all the ECAL documents.\nMissing slots: ", [[self xl3Link] crateName]];
 
@@ -1903,7 +1931,8 @@ void SwapLongBlock(void* p, int32_t n)
         [msg release];
         msg = nil;
     }
-    else {
+    else
+    {
         NSLog(@"%@ received all the ECAL documents requested.\n", [[self xl3Link] crateName]);
         NSLog(@"%@ updated ORCA with ECAL data.\n", [[self xl3Link] crateName]);
     }
@@ -1914,18 +1943,62 @@ void SwapLongBlock(void* p, int32_t n)
 
 - (void) parseEcalDocument:(NSDictionary*)aResult
 {
+    // * The root object aResult is a dictionary
+    // * Within it, rows will be an array of dictionaries
+    // * Each dictionary has an array named elements
+    // * Each entry in that array is a dictionary
+    // * Within that, distance is another dictionary
+    // * Distance contains two strings, with keys "text" and "value"
+    
+    // Make an NSArray pointer point to:
+    //
+    // objectForKey - is an NSDictionary method. An NSDictionary is a collection class similar to an NSArray, except instead of using indexes, it uses keys to differentiate between items; objectForKey will return the data for a specific key. So if I have the word "english" stored in the key "language" if I use NSString *string = [myDic objectForKey:language]; I'll get "english"
+    //
+    //  [aResult objectForKey:@"rows"]
+    //      Returns [{"key":"keyname", "value":1},
+    //               {"key":"keyname", "value":1},
+    //                    etc...
+    //              ]
+    //
+    //  produces
+    //
+    //      {"rows":[
+    //            {"key":"keyname","value":1},
+    //            {"key":"keyname","value":2},
+    //            {"key":"keyname","value":2},
+    //             etc...
+    //  ]}
+    //
+    //  [[aResult objectForKey:@"rows"] objectAtIndex:0]
+    //  Gets the first record of rows objectAtIndex:0 is the same as keyArray[0]
+    //
+    // => Therefore the line below will create a pointer array of keys from the first row of the database query result.
     NSArray* keyArray = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"key"];
+
+    // Get the values of the entire table
     NSDictionary* ecalDoc = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"value"];
+    
+    // get the document ID
     NSString* docId = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"id"];
 
-    unsigned int crate_num = [[keyArray objectAtIndex:0] intValue];
-    unsigned int slot_num = [[keyArray objectAtIndex:1] intValue];
+    // Get DB crate and slot numbers.
+    unsigned int crate_num  = [[keyArray objectAtIndex:0] intValue];
+    unsigned int slot_num   = [[keyArray objectAtIndex:1] intValue];
 
     NSLog(@"key array crate: %d slot: %d time: %@, id: %@\n", crate_num, slot_num, [keyArray objectAtIndex:2], docId);
     
+    // Check crate number and DB number numbers match.
     if ([self crateNumber] != crate_num) {
         NSLog(@"%@ error parsing ECAL document, the crate number in the key array doesn't match: %d\n",
               [[self xl3Link] crateName], crate_num);
+        return;
+    }
+
+    // Check that hardware slot number and DB slot numbers match.
+    if( [self stationNumber] != slot_num )
+    {
+        NSLog(@"%@ error parsing ECAL document, the slot number in the key array doesn't match: %d\n",
+              [self stationNumber], slot_num);
         return;
     }
 
@@ -1935,7 +2008,35 @@ void SwapLongBlock(void* p, int32_t n)
               [[self xl3Link] crateName], slot_num);
         return;
     }
+    
+    // Get motherboard IDs & daughter card IDs
+    NSString* idMB      = [ ecalDoc objectForKey:@"board_id" ];
+    NSDictionary* idDC  = [ ecalDoc objectForKey:@"id" ];
 
+    if( !idMB )
+    {
+        NSLog( @"Couldn't find motherboard in crate %@, slot %d", [[self xl3Link] crateName], slot_num );
+        
+        return;
+    }
+    else
+    {
+        NSLog( @"Crate: %@, Slot: %d, Motherboard ID: %s", [[self xl3Link] crateName], slot_num, idMB );
+    }
+    
+    if( !idDC )
+    {
+        NSLog( @"Couldn't find daughter cards in crate %@, slot %d", [[self xl3Link] crateName], slot_num );
+
+        return;
+    }
+    else
+    {
+        NSLog( @"Crate: %@, Slot: %d, DC id: %@", [[self xl3Link] crateName], slot_num, idDC );
+
+    }
+    
+    
     mb_t aConfigBundle;
     memset(&aConfigBundle, 0, sizeof(mb_t));
     

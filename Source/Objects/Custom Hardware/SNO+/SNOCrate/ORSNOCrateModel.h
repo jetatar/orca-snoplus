@@ -24,6 +24,8 @@
 #import "VME_eCPU_Config.h"
 #import "SBC_Config.h"
 
+
+// Declair ORSNOCrateModel object's methods and attributes.
 @interface ORSNOCrateModel : ORCrate <ORDataTaker> {
 	int slot;
 	int workingSlot;
