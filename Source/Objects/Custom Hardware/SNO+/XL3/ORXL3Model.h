@@ -136,6 +136,8 @@ enum {
     mb_t ui_bundle[16];
     unsigned long _ecal_received;
     bool _ecalToOrcaInProgress;
+
+    NSMutableArray* dbEcalEntries;
 }
 
 @property (nonatomic,assign) unsigned long xl3MegaBundleDataId;

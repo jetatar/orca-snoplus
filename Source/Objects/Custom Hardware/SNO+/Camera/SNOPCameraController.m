@@ -40,7 +40,7 @@
 
 -(IBAction)onTakePicAction:(id)sender
 {
-    [model powerCamera];
+/*    [model powerCamera];
     
     [runStateField setStringValue:@"Powering Camera."];
 
@@ -51,5 +51,6 @@
     [model runCaptureScript];
 
     [runStateField setStringValue:@"Taking a picture."];
-}
+*/
+ }
 @end

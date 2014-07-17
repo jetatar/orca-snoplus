@@ -1868,17 +1868,100 @@ void SwapLongBlock(void* p, int32_t n)
 - (void) ecalToOrca
 {
     unsigned short slot;
+    //NSMutableDictionary* bIDs = [[NSMutableDictionary alloc] initWithCapacity:10];
+    NSMutableDictionary *bIDs = [NSMutableDictionary dictionary];
+    
     [self setEcal_received:0UL];
-    for (slot=0; slot<16; slot++) {
-        NSString* requestString = [NSString stringWithFormat:@"_design/penn_daq_views/_view/get_fec_by_generated?descending=true&startkey=[%d,%d,{}]&endkey=[%d,%d,\"\"]&limit=1",[self crateNumber], slot, [self crateNumber], slot];
-        NSString* tagString = [NSString stringWithFormat:@"%@.%d.%d", kDebugDbEcalDocGot, [self crateNumber], slot];
-        //NSLog(@"%@ slot %hd request: %@ tag: %@\n", [[self xl3Link] crateName], slot, requestString, tagString);
-        [[self debugDBRef] getDocumentId:requestString tag:tagString];
+    
+    if( !dbEcalEntries )
+    {
+        dbEcalEntries = [[NSMutableArray alloc] init];
     }
+    
+    NSLog( @"Loading ECAL values for crate: %d\n", [self crateNumber] );
+    
+    // Get all ECALs from DB. (all crates, all slots).
+    for( unsigned short crate = 0; crate < 19; crate++ )
+    {
+        for( slot = 0; slot < 16; slot++ )
+        {
+            NSString* requestString = [ NSString stringWithFormat:@"_design/penn_daq_views/_view/get_fec_by_generated?descending=true&startkey=[%d,%d,{}]&endkey=[%d,%d,\"\"]&limit=1", crate, slot, crate, slot ];
+
+            NSString* tagString = [NSString stringWithFormat:@"%@.%d.%d", kDebugDbEcalDocGot, crate, slot];
+
+            // Get ECAL for slot and crate from DB.
+            [[self debugDBRef] getDocumentId:requestString tag:tagString];
+
+            // Get HW info for crate we are initializing.
+            if( [self crateNumber] == crate )
+            {
+                // Get hardware info.
+                unsigned short p, val;
+                unsigned long msk;
+                
+                [self setXl3OpsRunning:YES forKey:@"compositeBoardID"];
+                NSLog(@"%@ Get Board IDs ...\n", [[self xl3Link] crateName]);
+                
+                msk = [self slotMask];
+                
+                if( 1 << slot & msk )
+                {
+                    //HV chip not yet available
+                    //for (j = 0; j < 6; j++) {
+                    for( p = 0; p < 5; p++ )
+                    {
+                        val = [self getBoardIDForSlot:slot chip:(p+1)];
+
+                        if( val == 0x0 )
+                        {
+                            if( p == 0 )
+                            {
+                                NSLog( @"!!! Motherboard in Crate %d, Slot %d has no ID\n",
+                                      [self crateNumber], slot );
+                                [bIDs setObject:slot forKey:0];
+                            }
+                            else
+                            {
+                                NSLog( @"!!! Daughter Card in Crate %d, Slot %d, on MB Slot %d has no ID\n", [self crateNumber], slot, p );
+                            }
+                        }
+                        else
+                        {
+                            // M-Board ID as keys, slot on crate as values.
+                            if( p == 0 )
+                            {
+                                [bIDs setObject:[NSString stringWithFormat:@"%u",slot] forKey:[NSString stringWithFormat:@"%u",val]];
+                            }
+                            // D-Card IDs as keys, slot on MB as values.
+                            else
+                            {
+                                [bIDs setObject:[NSString stringWithFormat:@"%u",p] forKey:[NSString stringWithFormat:@"%u",val]];
+                            }
+                        }
+                    }
+                    
+                    //NSLog(@"slot: %02d: MB: %@ DB1: %@ DB2:%@ DB3: %@ DB4: %@ HV: %@\n",
+                    //      i+1, bID[0], bID[1], bID[2], bID[3], bID[4], bID[5]);
+//                    NSLog(@"slot: %02d: MB: %@ DB1: %@ DB2:%@ DB3: %@ DB4: %@\n",
+//                          s+1, bID[0], bID[1], bID[2], bID[3], bID[4]);
+                }
+            }
+        }
+    }
+
+    for( id key in bIDs )
+    {
+        id value = [bIDs objectForKey: key];
+        
+        NSLog( @"Board ID: %@, Slot Number: %@\n", key, value );
+    }
+//    dbEcalEntries
+    
     NSLog(@"%@ ECAL docs requested from debugDB\n", [[self xl3Link] crateName]);
     [self setEcalToOrcaInProgress:YES];
     [self performSelector:@selector(ecalToOrcaDocumentsReceived) withObject:nil afterDelay:10.0];
 }
+
 
 - (void) ecalToOrcaDocumentsReceived
 {
@@ -1914,13 +1997,50 @@ void SwapLongBlock(void* p, int32_t n)
 
 - (void) parseEcalDocument:(NSDictionary*)aResult
 {
-    NSArray* keyArray = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"key"];
+    NSArray* keyArray     = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"key"];
     NSDictionary* ecalDoc = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"value"];
-    NSString* docId = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"id"];
+    NSString* docId       = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"id"];
 
-    unsigned int crate_num = [[keyArray objectAtIndex:0] intValue];
-    unsigned int slot_num = [[keyArray objectAtIndex:1] intValue];
+    NSArray* keyTest = [aResult objectForKey:@"rows"];
+    
+    NSLog( @"Number of key rows: %d", [keyTest count] );
+    
+    // Get DB info.
+    unsigned int crate_num  = [[keyArray objectAtIndex:0] intValue];
+    unsigned int slot_num   = [[keyArray objectAtIndex:1] intValue];
 
+    // Get hardware info.
+	unsigned short s, p, val;
+	unsigned long msk;
+	NSString* bID[6];
+	
+	[self setXl3OpsRunning:YES forKey:@"compositeBoardID"];
+	NSLog(@"%@ Get Board IDs ...\n", [[self xl3Link] crateName]);
+
+	msk = [self slotMask];
+
+	for( s = 0; s < 16; s++ )
+    {
+		if( 1 << s & msk )
+        {
+			//HV chip not yet available
+			//for (j = 0; j < 6; j++) {
+			for( p = 0; p < 5; p++ )
+            {
+				val = [self getBoardIDForSlot:s chip:(p+1)];
+				if (val == 0x0) bID[p] = @"----";
+				else bID[p] = [NSString stringWithFormat:@"%04x", val];
+			}
+			
+			//NSLog(@"slot: %02d: MB: %@ DB1: %@ DB2:%@ DB3: %@ DB4: %@ HV: %@\n",
+			//      i+1, bID[0], bID[1], bID[2], bID[3], bID[4], bID[5]);
+			NSLog(@"slot: %02d: MB: %@ DB1: %@ DB2:%@ DB3: %@ DB4: %@\n",
+			      s+1, bID[0], bID[1], bID[2], bID[3], bID[4]);
+		}
+	}
+
+	[self setXl3OpsRunning:NO forKey:@"compositeBoardID"];
+    
     NSLog(@"key array crate: %d slot: %d time: %@, id: %@\n", crate_num, slot_num, [keyArray objectAtIndex:2], docId);
     
     if ([self crateNumber] != crate_num) {
@@ -1928,7 +2048,15 @@ void SwapLongBlock(void* p, int32_t n)
               [[self xl3Link] crateName], crate_num);
         return;
     }
-
+    
+    // Check that hardware slot number and DB slot numbers match.
+/*    if( [self stationNumber] != slot_num )
+    {
+        NSLog(@"%@ error parsing ECAL document, the slot number in the key array doesn't match: %d\n",[self stationNumber], slot_num);
+        
+        return;
+    }
+*/
     NSDictionary* hwDic = [ecalDoc objectForKey:@"hw"];
     if (!hwDic) {
         NSLog(@"%@ error parsing ECAL document, the hw dictionary missing for slot: %d\n",
@@ -1936,6 +2064,35 @@ void SwapLongBlock(void* p, int32_t n)
         return;
     }
 
+    
+    // Get motherboard IDs & daughter card IDs
+    NSString* idMB      = [ ecalDoc objectForKey:@"board_id" ];
+    NSDictionary* idDC  = [ ecalDoc objectForKey:@"id" ];
+    
+    if( !idMB )
+    {
+        NSLog( @"Couldn't find motherboard in crate %@, slot %d", [[self xl3Link] crateName], slot_num );
+        
+        return;
+    }
+    else
+    {
+        NSLog( @"Crate: %@, Slot: %d, HW MB ID: DB MB ID: %@", [[self xl3Link] crateName], slot_num, idMB );
+    }
+    
+    if( !idDC )
+    {
+        NSLog( @"Couldn't find daughter cards in crate %@, slot %d", [[self xl3Link] crateName], slot_num );
+        
+        return;
+    }
+    else
+    {
+        NSLog( @"Crate: %@, Slot: %d, DC id: %@", [[self xl3Link] crateName], slot_num, idDC );
+        
+    }
+    
+    
     mb_t aConfigBundle;
     memset(&aConfigBundle, 0, sizeof(mb_t));
     
@@ -2081,21 +2238,36 @@ void SwapLongBlock(void* p, int32_t n)
 
 - (void) couchDBResult:(id)aResult tag:(NSString*)aTag op:(id)anOp
 {
-	@synchronized(self){
-		if([aResult isKindOfClass:[NSDictionary class]]){
+	@synchronized(self)
+    {
+        //NSLog( @"%@\n\n\n\n", aResult );
+        
+
+        
+        NSLog( @"Size of ECAL array: %d\n", dbEcalEntries.count);
+		
+        if( [aResult isKindOfClass:[NSDictionary class]] )
+        {
 			NSString* message = [aResult objectForKey:@"Message"];
-			if(message){
-				if([aTag rangeOfString:kDebugDbEcalDocGot].location != NSNotFound){
+			
+            if( message )
+            {
+				if( [aTag rangeOfString:kDebugDbEcalDocGot].location != NSNotFound )
+                {
 					NSLog(@"CouchDB Message getting an ECAL doc:");
 				}
 				[aResult prettyPrint:@"CouchDB Message:"];
 			}
-			else {
-				if([aTag rangeOfString:kDebugDbEcalDocGot].location != NSNotFound){
+			else
+            {
+				if([aTag rangeOfString:kDebugDbEcalDocGot].location != NSNotFound)
+                {
                     //int key = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"key"];
                     if ([[aResult objectForKey:@"rows"] count] && [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"key"]){
+                        NSLog( @" There are %d documents retrieved.\n", [[aResult objectForKey:@"rows"] count]);
                         //NSLog(@"got ECAL doc: %@\n", aTag);
-                        [self parseEcalDocument:aResult];
+//                        [self parseEcalDocument:aResult];
+                        [dbEcalEntries addObject:aResult];
                     }
                     else {
                         //no ecal doc found
