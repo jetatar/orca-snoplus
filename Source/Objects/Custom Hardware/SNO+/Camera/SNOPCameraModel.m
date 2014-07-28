@@ -49,32 +49,18 @@
 }
 
 
-// implementation of adapter method
-- (id) adapter
+- (id) sbcLink
 {
-    // create an ambiguous pointer anAdapter that points to 
-	id anAdapter = [ [self guardian] adapter ];
-
-	if( anAdapter )
-    {
-        NSLog( @"%@", [anAdapter description] );
-        return anAdapter;
-    }
-    else
-    {
-        NSLog( @"Couldn't send appropriate adapter" );
-        [NSException raise:@"No XL2" format:@"Check that the crate has SBC"];
-    }
-        
-	return nil;
-}
-
-
-- (BOOL) adapterIsSBC
-{
-    NSLog( @"Looking for an SBC adapter...");
+    NSArray* theSBCs = [[self document] collectObjectsOfClass:NSClassFromString(@"ORVmecpuModel")];
     
-	return [[self adapter] isKindOfClass:NSClassFromString(@"ORVmecpuModel")];
+    NSLog(@"Found %d SBCs.\n", theSBCs.count);
+    
+    for(id anSBC in theSBCs)
+    {
+        return [anSBC sbcLink];
+    }
+    
+    return nil;
 }
 
 
@@ -90,17 +76,19 @@
     
     [task launch];
     
-    [task waitUntilExit];    
+    [task waitUntilExit];
 }
 
 
 - (void) powerCamera
 {
-    NSLog( @"Powering camera...\n");
+    NSLog( @"Attempting to power cameras.\n");
     
-    if( [self adapterIsSBC] )
+    SBC_Link* sbcLink = [self sbcLink];
+    
+    if( sbcLink != nil )
     {
-        NSLog( @"Adapter is SBC" );
+        NSLog(@"Made SBC Link.\n");
         
         long errorCode = 0;
         SBC_Packet aPacket;
@@ -114,15 +102,13 @@
         
         @try
         {
-            [ [[self adapter] sbcLink] send: &aPacket receive: &aPacket];
+            [sbcLink send: &aPacket receive: &aPacket];
             unsigned long* responsePtr  = (unsigned long*) aPacket.payload;
             errorCode                   = responsePtr[0];
-
-            NSLog( @"ErrorCode: %d", errorCode);
             
             if( errorCode )
             {
-                @throw [NSException exceptionWithName:@"Reset All MTCA+ error" reason:@"SBC and/or LabJack failed.\n" userInfo:nil];
+                @throw [NSException exceptionWithName:@"Reset All Camera error" reason:@"SBC and/or LabJack failed.\n" userInfo:nil];
             }
         }
         
@@ -133,7 +119,6 @@
             //@throw e;
         }
     }
-    
     else
     {
         NSLog( @"Not implemented. Requires SBC with LabJack\n" );
@@ -147,8 +132,9 @@
     
     task.launchPath = @"/usr/bin/python";
     
-    NSString* arg   = @"/Users/snotdaq/Dev/cameracode/capture_script.py -r";
-    task.arguments  = @[arg];
+    [task setArguments:@[ @"/Users/snotdaq/Dev/cameracode/capture_script.py", @"-r"]];
+    
+    NSLog( @"Running capture script\n" );
     
     [task launch];
 
@@ -165,7 +151,8 @@
         
         [NSThread sleepForTimeInterval:1.0];
     }
-    
-//    [task waitUntilExit];
+
+    [task release];
+//        [task waitUntilExit];
 }
 @end

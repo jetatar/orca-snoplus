@@ -40,10 +40,12 @@
 
 -(IBAction)onTakePicAction:(id)sender
 {
-/*    [model powerCamera];
+    [model powerCamera];
     
     [runStateField setStringValue:@"Powering Camera."];
 
+    sleep( 30 );
+    
     [model killPTPCameraProcess];
 
     [runStateField setStringValue:@"Killing PTPCamera Process."];
@@ -51,6 +53,5 @@
     [model runCaptureScript];
 
     [runStateField setStringValue:@"Taking a picture."];
-*/
  }
 @end

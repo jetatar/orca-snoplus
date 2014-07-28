@@ -8,9 +8,11 @@
 
 #import <Foundation/Foundation.h>
 #import "SNOPCameraController.h"
+#import "ORVmeIOCard.h"
 
 // Create a class SNOPCameraModel which inherits from OrcaObject
 @interface SNOPCameraModel : OrcaObject
+//@interface SNOPCameraModel : ORVmeIOCard
 {
     BOOL isRunning;
 }
@@ -20,8 +22,7 @@
 - (void) wakeUp;
 - (void) sleep;
 - (void) dealloc;
-- (id)   adapter;
-- (BOOL) adapterIsSBC;
+- (id)   sbcLink;
 - (void) killPTPCameraProcess;
 - (void) powerCamera;
 - (void) runCaptureScript;
