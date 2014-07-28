@@ -77,6 +77,8 @@
     [task launch];
     
     [task waitUntilExit];
+
+    [task release];
 }
 
 
