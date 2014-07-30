@@ -13,18 +13,20 @@
 // Create a class SNOPCameraModel which inherits from OrcaObject
 @interface SNOPCameraModel : OrcaObject
 {
-    BOOL isRunning;
-    NSTask* captureTask;
+//    BOOL isRunning;
+    NSTask* cameraCaptureTask;
 }
 
-- (void) setUpImage;
-- (void) makeMainController;
-- (void) wakeUp;
-- (void) sleep;
-- (void) dealloc;
-- (id)   sbcLink;
-- (void) killPTPCameraProcess;
-- (void) powerCamera;
-- (void) runCaptureScript;
+-( void ) setUpImage;
+-( void ) makeMainController;
+-( void ) wakeUp;
+-( void ) sleep;
+-( void ) dealloc;
+-( id )   sbcLink;
+-( void ) killPTPCameraProcess;
+-( void ) powerCamera;
+-( void ) runCaptureScript;
+//-( BOOL ) cameraCaptureTaskRunning;
+//-( void ) tasksCompleted:(id)sender;
 
 @end

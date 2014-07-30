@@ -130,51 +130,40 @@
 
 - (void) runCaptureScript
 {
-    if( !captureTask )
+    if( !cameraCaptureTask )
     {
         ORTaskSequence* aSequence =
                                 [ORTaskSequence taskSequenceWithDelegate:self];
 
-        captureTask = [[NSTask alloc] init];
-        [captureTask setLaunchPath  :@"/usr/bin/python"];
-        [captureTask setArguments   :@[@"/Users/snotdaq/Dev/cameracode/capture_script.py", @"-r"]];
+        cameraCaptureTask = [[NSTask alloc] init];
+        [cameraCaptureTask setLaunchPath  :@"/usr/bin/python"];
+        [cameraCaptureTask setArguments   :@[@"/Users/snotdaq/Dev/cameracode/capture_script.py", @"-r"]];
         
-        [aSequence addTaskObj:captureTask];
+        [aSequence addTaskObj:cameraCaptureTask];
         [aSequence setVerbose:NO];
         [aSequence setTextToDelegate:YES];
         
         [aSequence launch];
     }
-/*
-        
-        
-        
-        NSTask* task = [[NSTask alloc] init];
-    
-    task.launchPath = @"/usr/bin/python";
-    
-    [task setArguments:@[ @"/Users/snotdaq/Dev/cameracode/capture_script.py", @"-r"]];
-    
-    NSLog( @"Running capture script\n" );
-    
-    [task launch];
 
-    NSDate* terminateDate = [[NSDate date] addTimeInterval:300.0];
-    
-    while( (task != nil) && ([task isRunning]) )
-    {
-        if( [[NSDate date] compare:(id) terminateDate] == NSOrderedDescending )
-        {
-            [task terminate];
-            
-            NSLog( @"Error: runCaptureScript is timing out." );
-        }
-        
-        [NSThread sleepForTimeInterval:1.0];
-    }
-
-    [task release];
-//        [task waitUntilExit];
- */
+    sleep(60);
 }
+
+/*
+-( BOOL ) cameraCaptureTaskRunning
+{
+    return cameraCaptureTask != nil;
+}
+
+
+-( void ) tasksCompleted:(id)sender
+{
+    [cameraCaptureTask release];
+
+    cameraCaptureTask = nil;
+}
+*/
+
+
+
 @end
