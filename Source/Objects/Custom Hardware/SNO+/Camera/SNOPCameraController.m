@@ -44,8 +44,6 @@
     
     [runStateField setStringValue:@"Powering Camera."];
 
-//    sleep( 30 );
-    
     [model killPTPCameraProcess];
 
     [runStateField setStringValue:@"Killing PTPCamera Process."];

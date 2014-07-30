@@ -9,7 +9,7 @@
 #import "SNOPCameraModel.h"
 #import "SBC_Link.h"
 #import "SNOCmds.h"
-
+#import "ORTaskSequence.h"
 
 @implementation SNOPCameraModel
 
@@ -130,7 +130,26 @@
 
 - (void) runCaptureScript
 {
-    NSTask* task = [[NSTask alloc] init];
+    if( !captureTask )
+    {
+        ORTaskSequence* aSequence =
+                                [ORTaskSequence taskSequenceWithDelegate:self];
+
+        captureTask = [[NSTask alloc] init];
+        [captureTask setLaunchPath  :@"/usr/bin/python"];
+        [captureTask setArguments   :@[@"/Users/snotdaq/Dev/cameracode/capture_script.py", @"-r"]];
+        
+        [aSequence addTaskObj:captureTask];
+        [aSequence setVerbose:NO];
+        [aSequence setTextToDelegate:YES];
+        
+        [aSequence launch];
+    }
+/*
+        
+        
+        
+        NSTask* task = [[NSTask alloc] init];
     
     task.launchPath = @"/usr/bin/python";
     
@@ -156,5 +175,6 @@
 
     [task release];
 //        [task waitUntilExit];
+ */
 }
 @end
