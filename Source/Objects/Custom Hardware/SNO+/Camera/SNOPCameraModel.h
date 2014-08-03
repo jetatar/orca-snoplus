@@ -26,7 +26,7 @@
 -( void ) killPTPCameraProcess;
 -( void ) powerCamera;
 -( void ) runCaptureScript;
-//-( BOOL ) cameraCaptureTaskRunning;
-//-( void ) tasksCompleted:(id)sender;
+-( BOOL ) cameraCaptureTaskRunning;
+-( void ) tasksCompleted:(id)sender;
 
 @end

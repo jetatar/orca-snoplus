@@ -140,16 +140,16 @@
         [cameraCaptureTask setArguments   :@[@"/Users/snotdaq/Dev/cameracode/capture_script.py", @"-r"]];
         
         [aSequence addTaskObj:cameraCaptureTask];
-        [aSequence setVerbose:NO];
+        [aSequence setVerbose:YES];
         [aSequence setTextToDelegate:YES];
         
         [aSequence launch];
+        
+		[[NSNotificationCenter defaultCenter] postNotificationName:@"cameraCaptureNotification" object:self];
     }
-
-    sleep(60);
 }
 
-/*
+
 -( BOOL ) cameraCaptureTaskRunning
 {
     return cameraCaptureTask != nil;
@@ -162,7 +162,7 @@
 
     cameraCaptureTask = nil;
 }
-*/
+
 
 
 

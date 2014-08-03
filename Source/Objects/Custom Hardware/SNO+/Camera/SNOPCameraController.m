@@ -29,29 +29,32 @@
 -( void ) updateWindow
 {
     [super updateWindow];
+
+    [self cameraCaptureTaskChanged:nil];
 }
 
 
 -( void ) registerNotificationObservers
 {
     NSNotificationCenter* notifyCenter = [NSNotificationCenter defaultCenter];
-//    [super registerNotificationObservers];
-/*
+    [super registerNotificationObservers];
+
 	[notifyCenter addObserver : self
                      selector : @selector(cameraCaptureTaskChanged:)
                          name : @"cameraCaptureNotification"
                        object : nil];
-*/
- }
+}
 
-/*
+
 -( void ) cameraCaptureTaskChanged:(NSNotification*) aNote
 {
     BOOL captureRunning = [model cameraCaptureTaskRunning];
 
+    NSLog( @"Task Changed.\n" );
+    
     [takePicButton setTitle:captureRunning?@"Stop":@"Start"];
 }
-*/
+
 
 -(IBAction)onTakePicAction:(id)sender
 {
