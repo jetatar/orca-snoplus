@@ -49,10 +49,8 @@
 -( void ) cameraCaptureTaskChanged:(NSNotification*) aNote
 {
     BOOL captureRunning = [model cameraCaptureTaskRunning];
-
-    NSLog( @"Task Changed.\n" );
     
-    [takePicButton setTitle:captureRunning?@"Stop":@"Start"];
+    [takePicButton setTitle:captureRunning?@"Stop":@"Take Photo"];
 }
 
 
@@ -68,6 +66,6 @@
 
     [model runCaptureScript];
 
-    [runStateField setStringValue:@"Taking a picture."];
- }
+    [runStateField setStringValue:@"Taking photos."];
+}
 @end
