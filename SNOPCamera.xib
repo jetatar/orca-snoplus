@@ -86,6 +86,7 @@
 							<string key="NSFrame">{{54, 49}, {205, 17}}</string>
 							<reference key="NSSuperview" ref="1006"/>
 							<reference key="NSWindow"/>
+							<reference key="NSNextKeyView"/>
 							<string key="NSReuseIdentifierKey">_NS:1535</string>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSTextFieldCell" key="NSCell" id="556547042">
@@ -138,7 +139,7 @@
 								<int key="NSCellFlags2">33554432</int>
 								<object class="NSCustomResource" key="NSContents">
 									<string key="NSClassName">NSImage</string>
-									<string key="NSResourceName">SNOP</string>
+									<string key="NSResourceName">CameraPic</string>
 								</object>
 								<string key="NSCellIdentifier">_NS:9</string>
 								<int key="NSAlign">0</int>
@@ -420,8 +421,8 @@
 		<bool key="IBDocument.PluginDeclaredDependenciesTrackSystemTargetVersion">YES</bool>
 		<int key="IBDocument.defaultPropertyAccessControl">3</int>
 		<object class="NSMutableDictionary" key="IBDocument.LastKnownImageSizes">
-			<string key="NS.key.0">SNOP</string>
-			<string key="NS.object.0">{75, 113}</string>
+			<string key="NS.key.0">CameraPic</string>
+			<string key="NS.object.0">{77, 57}</string>
 		</object>
 	</data>
 </archive>

@@ -15,6 +15,7 @@
 {
 //    BOOL isRunning;
     NSTask* cameraCaptureTask;
+//    NSTask* killPTPCamera;
 }
 
 -( void ) setUpImage;
@@ -23,7 +24,7 @@
 -( void ) sleep;
 -( void ) dealloc;
 -( id )   sbcLink;
--( void ) killPTPCameraProcess;
+//-( void ) killPTPCameraProcess;
 -( void ) powerCamera;
 -( void ) runCaptureScript;
 -( BOOL ) cameraCaptureTaskRunning;

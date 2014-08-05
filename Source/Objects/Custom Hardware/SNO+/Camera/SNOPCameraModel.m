@@ -63,7 +63,7 @@
     return nil;
 }
 
-
+/*
 - (void) killPTPCameraProcess
 {
     // Kill PTPCamera Process
@@ -80,57 +80,64 @@
 
     [task release];
 }
-
+*/
 
 - (void) powerCamera
 {
-    NSLog( @"Attempting to power cameras.\n");
-    
-    SBC_Link* sbcLink = [self sbcLink];
-    
-    if( sbcLink != nil )
+    if( !cameraCaptureTask )
     {
-        NSLog(@"Made SBC Link.\n");
+        SBC_Link* sbcLink = [self sbcLink];
         
-        long errorCode = 0;
-        SBC_Packet aPacket;
-        
-        aPacket.cmdHeader.destination           = kSNO;
-        aPacket.cmdHeader.cmdID                 = kSNOCameraResetAll;
-        aPacket.cmdHeader.numberBytesinPayload  = 1 * sizeof( long );
-        
-        unsigned long* payloadPtr   = (unsigned long*) aPacket.payload;
-        payloadPtr[0]               = 0;
-        
-        @try
+        if( sbcLink != nil )
         {
-            [sbcLink send: &aPacket receive: &aPacket];
-            unsigned long* responsePtr  = (unsigned long*) aPacket.payload;
-            errorCode                   = responsePtr[0];
+            NSLog(@"Made SBC Link.\n");
             
-            if( errorCode )
+            long errorCode = 0;
+            SBC_Packet aPacket;
+            
+            aPacket.cmdHeader.destination           = kSNO;
+            aPacket.cmdHeader.cmdID                 = kSNOCameraResetAll;
+            aPacket.cmdHeader.numberBytesinPayload  = 1 * sizeof( long );
+            
+            unsigned long* payloadPtr   = (unsigned long*) aPacket.payload;
+            payloadPtr[0]               = 0;
+            
+            @try
             {
-                @throw [NSException exceptionWithName:@"Reset All Camera error" reason:@"SBC and/or LabJack failed.\n" userInfo:nil];
+                [sbcLink send: &aPacket receive: &aPacket];
+                unsigned long* responsePtr  = (unsigned long*) aPacket.payload;
+                errorCode                   = responsePtr[0];
+                
+                if( errorCode )
+                {
+                    @throw [NSException exceptionWithName:@"Reset All Camera error" reason:@"SBC and/or LabJack failed.\n" userInfo:nil];
+                }
+            }
+            
+            @catch( NSException* e )
+            {
+                NSLog( @"SBC failed reset Cameras\n" );
+                NSLog( @"Error: %@ with reason: %@\n", [e name], [e reason] );
+                //@throw e;
             }
         }
-        
-        @catch( NSException* e )
+        else
         {
-            NSLog( @"SBC failed reset Cameras\n" );
-            NSLog( @"Error: %@ with reason: %@\n", [e name], [e reason] );
-            //@throw e;
+            NSLog( @"Not implemented. Requires SBC with LabJack\n" );
         }
     }
-    else
-    {
-        NSLog( @"Not implemented. Requires SBC with LabJack\n" );
-    }
+}
+
+
+-( BOOL ) cameraCaptureTaskRunning
+{
+    return( cameraCaptureTask != nil );
 }
 
 
 - (void) runCaptureScript
 {
-    if( !cameraCaptureTask )
+    if( ![self cameraCaptureTaskRunning] )
     {
         ORTaskSequence* aSequence =
                                 [ORTaskSequence taskSequenceWithDelegate:self];
@@ -147,12 +154,13 @@
         
 		[[NSNotificationCenter defaultCenter] postNotificationName:@"cameraCaptureNotification" object:self];
     }
-}
+    else
+    {
+        [cameraCaptureTask terminate];
+        cameraCaptureTask = nil;
 
-
--( BOOL ) cameraCaptureTaskRunning
-{
-    return cameraCaptureTask != nil;
+		[[NSNotificationCenter defaultCenter] postNotificationName:@"cameraCaptureNotification" object:self];
+    }
 }
 
 
@@ -162,8 +170,6 @@
 
     cameraCaptureTask = nil;
 }
-
-
 
 
 @end
