@@ -2197,10 +2197,9 @@ void SwapLongBlock(void* p, int32_t n)
     else
     {
         NSLog( @"Crate: %@, Slot: %d, DC id: %@", [[self xl3Link] crateName], slot_num, idDC );
-        
     }
     
-    
+
     mb_t aConfigBundle;
     memset(&aConfigBundle, 0, sizeof(mb_t));
     
