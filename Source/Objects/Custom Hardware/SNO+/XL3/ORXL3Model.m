@@ -2067,11 +2067,41 @@ void SwapLongBlock(void* p, int32_t n)
         
         return;
     }
+
+    //
+    // Get the board IDs from XL3
+    //
+/*    unsigned short ch, val;
+    NSString* bID[6];
+
+	[self setXl3OpsRunning:YES forKey:@"compositeBoardID"];
+	
+    NSLog(@"%@ Get Board IDs ...\n", [[self xl3Link] crateName]);
     
-    // Get motherboard IDs & daughter card IDs
+    for( ch = 0; ch < 5; ch++ )
+    {
+        val = [self getBoardIDForSlot:[self stationNumber] chip:(ch + 1)];
+
+        if( val == 0x0 )
+        {
+            bID[ch] = @"----";
+        }
+        else
+        {
+            bID[ch] = [NSString stringWithFormat:@"%04x", val];
+        }
+    }
+    
+    [self setXl3OpsRunning:NO forKey:@"compositeBoardID"];
+*/
+    //
+    // Get motherboard IDs & daughter card IDs from DATABASE
+    //
     NSString* idMB      = [ ecalDoc objectForKey:@"board_id" ];
     NSDictionary* idDC  = [ ecalDoc objectForKey:@"id" ];
 
+//    NSLog( @"HW MB: %@, DB MB: %@", bID[1], idMB );
+    
     if( !idMB )
     {
         NSLog( @"Couldn't find motherboard in crate %@, slot %d", [[self xl3Link] crateName], slot_num );
@@ -2094,7 +2124,7 @@ void SwapLongBlock(void* p, int32_t n)
         NSLog( @"Crate: %@, Slot: %d, DC id: %@", [[self xl3Link] crateName], slot_num, idDC );
 
     }
-
+/*
     bool mbMisMatch = false;
     bool dcMisMatch[4];
     
@@ -2137,8 +2167,8 @@ void SwapLongBlock(void* p, int32_t n)
         // check if document has been received...
         hwforBoard
     }
-
-    
+*/
+ 
     // If all DC and MB match in slots... load as before.
     mb_t aConfigBundle;
     memset( &aConfigBundle, 0, sizeof(mb_t) );
@@ -2222,7 +2252,8 @@ void SwapLongBlock(void* p, int32_t n)
     //NSLog(@"ecal received mask: 0x%08x\n", [self ecal_received]);
     if ([self ecal_received] == 0xffffUL) {
         [self ecalToOrcaDocumentsReceived];
-    }    
+    }
+
 }
 
 //todo give links to debugDB documents
