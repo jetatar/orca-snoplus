@@ -199,7 +199,7 @@ typedef struct {
 } tdisc_t;
 
 typedef struct {
-    /* the folowing are motherboard wide constants */
+    /* the following are motherboard wide constants */
     unsigned char     vmax;           // upper TAC reference voltage
     unsigned char     tacref;         // lower TAC reference voltage
     unsigned char     isetm[2];       // primary   timing current [0= tac0; 1= tac1]
@@ -223,7 +223,7 @@ typedef struct {
     unsigned char      twidth[32];    //tr20 width (see loadcmosshift.c for details)
     // [channel 0 to 31], only bits 0 to 6 defined
     unsigned char      tdelay[32];    //tr20 delay (see loadcmosshift.c for details)
-    // [channel 0 to 31], only buts 0 to 4 defined
+    // [channel 0 to 31], only bits 0 to 4 defined
 } tr20_t;
 
 typedef struct {

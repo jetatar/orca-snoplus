@@ -1965,19 +1965,33 @@ void SwapLongBlock(void* p, int32_t n)
 
 -( void ) parseEcalforBoardID:(NSDictionary*) aResult
 {
-    // 
-    NSString* boardName = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"key"];
 
     NSDictionary* ecalDoc = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"value"];
 
+    hwforBoard = [ecalDoc objectForKey:@"hw"];
+
+    //NSString* boardName = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"key"];
+
+    /*
     // Get motherboard IDs & daughter card IDs
     NSString* idMB      = [ ecalDoc objectForKey:@"board_id" ];
     NSDictionary* idDC  = [ ecalDoc objectForKey:@"id" ];
     
     NSArray* boardKeys = [aResult allKeysForObject:boardName];
     NSString* boardKey = [boardKeys lastObject];
+*/
+
     
-//    boardIDRes = [[NSDictionary alloc] init];
+    /*
+    // Get the values for that particular card only.
+    if( boardName == idMB )
+    {
+    }
+
+    
+    
+    boardIDRes = [[NSDictionary alloc] init];
+*/
 }
 
 - (void) parseEcalDocument:(NSDictionary*)aResult
@@ -2012,13 +2026,13 @@ void SwapLongBlock(void* p, int32_t n)
     //  Gets the first record of rows objectAtIndex:0 is the same as keyArray[0]
     //
     // => Therefore the line below will create a pointer array of keys from the first row of the database query result.
-    NSArray* keyArray = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"key"];
+    NSArray* keyArray       = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"key"];
 
     // Get the values of the entire table
-    NSDictionary* ecalDoc = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"value"];
+    NSDictionary* ecalDoc   = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"value"];
     
     // get the document ID
-    NSString* docId = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"id"];
+    NSString* docId         = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"id"];
 
     // Get DB crate and slot numbers.
     unsigned int crate_num  = [[keyArray objectAtIndex:0] intValue];
@@ -2027,9 +2041,11 @@ void SwapLongBlock(void* p, int32_t n)
     NSLog(@"key array crate: %d slot: %d time: %@, id: %@\n", crate_num, slot_num, [keyArray objectAtIndex:2], docId);
     
     // Check crate number and DB number numbers match.
-    if ([self crateNumber] != crate_num) {
+    if( [self crateNumber] != crate_num )
+    {
         NSLog(@"%@ error parsing ECAL document, the crate number in the key array doesn't match: %d\n",
               [[self xl3Link] crateName], crate_num);
+
         return;
     }
 
@@ -2038,13 +2054,17 @@ void SwapLongBlock(void* p, int32_t n)
     {
         NSLog(@"%@ error parsing ECAL document, the slot number in the key array doesn't match: %d\n",
               [self stationNumber], slot_num);
+
         return;
     }
 
     NSDictionary* hwDic = [ecalDoc objectForKey:@"hw"];
-    if (!hwDic) {
+
+    if( !hwDic )
+    {
         NSLog(@"%@ error parsing ECAL document, the hw dictionary missing for slot: %d\n",
               [[self xl3Link] crateName], slot_num);
+        
         return;
     }
     
@@ -2075,31 +2095,74 @@ void SwapLongBlock(void* p, int32_t n)
 
     }
 
+    bool mbMisMatch = false;
+    bool dcMisMatch[4];
+    
+    for( unsigned char c = 0; c < 4; c++ )
+    {
+        dcMisMatch[c] = false;
+    }
+    
     // Check if MB and DC match.
-    // If HW MB doesn't match DB MB ... load document
-    [self getDocbyBoardID:idMB];
+    if( idMB == hwMB )
+    {
+        aConfigBundle.mb_id = 0;
+        ....
+    }
+    else
+    {
+        mbMisMatch = true;
+    }
+
+    for( unsigned char c = 0; c < 4; c++ )
+    {
+        if( idDC[c] == hwDC[c] )
+        {
+            continue;
+        }
+        else
+        {
+            dcMisMatch[c] = false;
+        }
+    }
+
+    for( unsigned char c = 0; c < 4; c++ )
+    {
+        if( dcMisMatch[c] == true )
+        {
+
+            [self getDocbyBoardID:idDC[c]];
+        }
+
+        // check if document has been received...
+        hwforBoard
+    }
+
     
     // If all DC and MB match in slots... load as before.
     mb_t aConfigBundle;
-    memset(&aConfigBundle, 0, sizeof(mb_t));
+    memset( &aConfigBundle, 0, sizeof(mb_t) );
     
     unsigned short i, j;
+    
     aConfigBundle.mb_id = 0;
-    for (i=0; i<4; i++) {
+
+    for( i = 0; i < 4; i++ )
+    {
         aConfigBundle.dc_id[i] = 0;
     }
     
     // Daughter Cards
-    for (i=0; i<2; i++)
+    for( i = 0; i < 2; i++ )
     {
-        for (j=0; j<32; j++)
+        for( j = 0; j < 32; j++ )
         {
             aConfigBundle.vbal[i][j] = [[[[hwDic objectForKey:@"vbal"] objectAtIndex:i] objectAtIndex:j] intValue];
         }
     }
     
     // Daughter Cards
-    for (i=0; i<32; i++)
+    for( i = 0; i < 32; i++ )
     {
         aConfigBundle.vthr[i] = [[[hwDic objectForKey:@"vthr"] objectAtIndex:i] intValue];
     }

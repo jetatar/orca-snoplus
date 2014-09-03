@@ -131,6 +131,8 @@ enum {
     id <snotDbDelegate> _snotDb;
     
     NSDictionary* boardIDRes;
+    NSDictionary* hwforBoard;
+    
     mb_t safe_bundle[16];
     mb_t ecal_bundle[16];
     mb_t hw_bundle[16];
