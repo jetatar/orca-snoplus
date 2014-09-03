@@ -130,6 +130,7 @@ enum {
     BOOL _xl3InitInProgress;
     id <snotDbDelegate> _snotDb;
     
+    NSDictionary* boardIDRes;
     mb_t safe_bundle[16];
     mb_t ecal_bundle[16];
     mb_t hw_bundle[16];
@@ -255,8 +256,10 @@ enum {
 - (ORCouchDB*) debugDBRef;
 - (void) couchDBResult:(id)aResult tag:(NSString*)aTag op:(id)anOp;
 - (void) ecalToOrca;
+- (void) getDocbyBoardID:(NSString*) aBoardID;
 - (void) ecalToOrcaDocumentsReceived;
 - (void) parseEcalDocument:(NSDictionary*)aResult;
+-( void ) parseEcalforBoardID:(NSDictionary*) aResult;
 - (void) updateUIFromEcalBundle:(NSDictionary*)aBundle slot:(unsigned int)aSlot;
 - (BOOL) isRelayClosedForSlot:(unsigned int)slot pc:(unsigned int)aPC;
 

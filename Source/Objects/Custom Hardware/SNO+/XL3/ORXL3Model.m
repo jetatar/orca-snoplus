@@ -51,7 +51,8 @@ static Xl3RegNamesStruct reg[kXl3NumRegisters] = {
 
 #pragma mark •••Definitions
 
-#define kDebugDbEcalDocGot  @"kDebugDbEcalDocGot"
+#define kDebugDbEcalDocGot      @"kDebugDbEcalDocGot"
+#define kDebugDbEcalbyBoardID   @"kDebugDbEcalbyBoardID"
 
 NSString* ORXL3ModelSelectedRegisterChanged =	@"ORXL3ModelSelectedRegisterChanged";
 NSString* ORXL3ModelRepeatCountChanged =		@"ORXL3ModelRepeatCountChanged";
@@ -1870,11 +1871,31 @@ void SwapLongBlock(void* p, int32_t n)
 
 // implementation of ORXL3Model
 // a database helper
+- (void) getDocbyBoardID:(NSString*) aBoardID
+{
+    // 0UL - treat setEcal_received as a 64-bit unsigned long 0.
+    // i.e: create a variable setEcal_received and asign it a unsigned long 0.
+//    [self setEcal_received:0UL];
+    
+    NSString* requestString = [NSString stringWithFormat:@"_design/debugdb/_view/get_fec_by_board_id?descending=true&startkey=[%@,{}]&endkey=[%@,\"\"]&limit=1", aBoardID, aBoardID];
+        
+    NSString* tagString = [NSString stringWithFormat:@"%@.%@", kDebugDbEcalbyBoardID, boardID];
+        
+    [[self debugDBRef] getDocumentId:requestString tag:tagString];
+    
+    NSLog(@"%@ ECAL docs requested from debugDB by boardID\n");
+    
+//    [self setEcalToOrcaInProgress:YES];
+    
+//    [self performSelector:@selector(ecalToOrcaDocumentsReceived) withObject:nil afterDelay:10.0];
+}
+
+
 - (void) ecalToOrca
 {
     // define slot variable
     unsigned short slot;
-
+    
     // 0UL - treat setEcal_received as a 64-bit unsigned long 0.
     // i.e: create a variable setEcal_received and asign it a unsigned long 0.
     [self setEcal_received:0UL];
@@ -1903,6 +1924,7 @@ void SwapLongBlock(void* p, int32_t n)
     // delay the method call for 10 seconds.
     [self performSelector:@selector(ecalToOrcaDocumentsReceived) withObject:nil afterDelay:10.0];
 }
+
 
 - (void) ecalToOrcaDocumentsReceived
 {
@@ -1939,6 +1961,23 @@ void SwapLongBlock(void* p, int32_t n)
     
     [self setEcal_received:0UL];
     [self setEcalToOrcaInProgress:NO];
+}
+
+-( void ) parseEcalforBoardID:(NSDictionary*) aResult
+{
+    // 
+    NSString* boardName = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"key"];
+
+    NSDictionary* ecalDoc = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"value"];
+
+    // Get motherboard IDs & daughter card IDs
+    NSString* idMB      = [ ecalDoc objectForKey:@"board_id" ];
+    NSDictionary* idDC  = [ ecalDoc objectForKey:@"id" ];
+    
+    NSArray* boardKeys = [aResult allKeysForObject:boardName];
+    NSString* boardKey = [boardKeys lastObject];
+    
+//    boardIDRes = [[NSDictionary alloc] init];
 }
 
 - (void) parseEcalDocument:(NSDictionary*)aResult
@@ -2035,8 +2074,12 @@ void SwapLongBlock(void* p, int32_t n)
         NSLog( @"Crate: %@, Slot: %d, DC id: %@", [[self xl3Link] crateName], slot_num, idDC );
 
     }
+
+    // Check if MB and DC match.
+    // If HW MB doesn't match DB MB ... load document
+    [self getDocbyBoardID:idMB];
     
-    
+    // If all DC and MB match in slots... load as before.
     mb_t aConfigBundle;
     memset(&aConfigBundle, 0, sizeof(mb_t));
     
@@ -2046,41 +2089,56 @@ void SwapLongBlock(void* p, int32_t n)
         aConfigBundle.dc_id[i] = 0;
     }
     
-    for (i=0; i<2; i++) {
-        for (j=0; j<32; j++) {
+    // Daughter Cards
+    for (i=0; i<2; i++)
+    {
+        for (j=0; j<32; j++)
+        {
             aConfigBundle.vbal[i][j] = [[[[hwDic objectForKey:@"vbal"] objectAtIndex:i] objectAtIndex:j] intValue];
         }
     }
     
-    for (i=0; i<32; i++) {
+    // Daughter Cards
+    for (i=0; i<32; i++)
+    {
         aConfigBundle.vthr[i] = [[[hwDic objectForKey:@"vthr"] objectAtIndex:i] intValue];
     }
-    
-    for (i=0; i<8; i++) {
+
+    // Chip specific, two chips per Daughter Card.
+    for (i=0; i<8; i++)
+    {
         aConfigBundle.tdisc.rmp[i] = [[[[hwDic objectForKey:@"tdisc"] objectForKey:@"rmp"] objectAtIndex:i] intValue];
         aConfigBundle.tdisc.rmpup[i] = [[[[hwDic objectForKey:@"tdisc"] objectForKey:@"rmpup"] objectAtIndex:i] intValue];
         aConfigBundle.tdisc.vsi[i] = [[[[hwDic objectForKey:@"tdisc"] objectForKey:@"vsi"] objectAtIndex:i] intValue];
         aConfigBundle.tdisc.vli[i] = [[[[hwDic objectForKey:@"tdisc"] objectForKey:@"vli"] objectAtIndex:i] intValue];
     }
     
+    // Mother board specific.
     aConfigBundle.tcmos.vmax = [[[hwDic objectForKey:@"tcmos"] objectForKey:@"vmax"] intValue];
     aConfigBundle.tcmos.tacref = [[[hwDic objectForKey:@"tcmos"] objectForKey:@"vtacref"] intValue];
+
+    // Mother board specific.
     for (i=0; i<2; i++) {
         aConfigBundle.tcmos.isetm[i] = [[[[hwDic objectForKey:@"tcmos"] objectForKey:@"isetm"] objectAtIndex:i] intValue];
         aConfigBundle.tcmos.iseta[i] = [[[[hwDic objectForKey:@"tcmos"] objectForKey:@"iseta"] objectAtIndex:i] intValue];
     }
+    
+    // Daughter cards
     for (i=0; i<32; i++) {
         aConfigBundle.tcmos.tac_shift[i] = [[[[hwDic objectForKey:@"tcmos"] objectForKey:@"tac_trim"] objectAtIndex:i] intValue];
     }
 
+    // Mother board.
     aConfigBundle.vint = [[hwDic objectForKey:@"vint"] intValue];
     aConfigBundle.hvref = [[hwDic objectForKey:@"hvref"] intValue];
 
+    // Daughter cards
     for (i=0; i<32; i++) {
         aConfigBundle.tr100.mask[i] = [[[[hwDic objectForKey:@"tr100"] objectForKey:@"mask"] objectAtIndex:i] intValue];
         aConfigBundle.tr100.tdelay[i] = [[[[hwDic objectForKey:@"tr100"] objectForKey:@"delay"] objectAtIndex:i] intValue];
     }
 
+    // Daughter cards
     for (i=0; i<32; i++) {
         aConfigBundle.tr20.mask[i] = [[[[hwDic objectForKey:@"tr20"] objectForKey:@"mask"] objectAtIndex:i] intValue];
         aConfigBundle.tr20.tdelay[i] = [[[[hwDic objectForKey:@"tr20"] objectForKey:@"delay"] objectAtIndex:i] intValue];
@@ -2182,35 +2240,59 @@ void SwapLongBlock(void* p, int32_t n)
 
 - (void) couchDBResult:(id)aResult tag:(NSString*)aTag op:(id)anOp
 {
-	@synchronized(self){
-		if([aResult isKindOfClass:[NSDictionary class]]){
+	@synchronized(self)
+    {
+		if([aResult isKindOfClass:[NSDictionary class]])
+        {
 			NSString* message = [aResult objectForKey:@"Message"];
-			if(message){
-				if([aTag rangeOfString:kDebugDbEcalDocGot].location != NSNotFound){
+
+			if(message)
+            {
+				if([aTag rangeOfString:kDebugDbEcalDocGot].location != NSNotFound)
+                {
 					NSLog(@"CouchDB Message getting an ECAL doc:");
 				}
 				[aResult prettyPrint:@"CouchDB Message:"];
 			}
-			else {
-				if([aTag rangeOfString:kDebugDbEcalDocGot].location != NSNotFound){
+			else
+            {
+				if([aTag rangeOfString:kDebugDbEcalDocGot].location != NSNotFound)
+                {
                     //int key = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"key"];
-                    if ([[aResult objectForKey:@"rows"] count] && [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"key"]){
+                    if ([[aResult objectForKey:@"rows"] count] && [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"key"])
+                    {
                         //NSLog(@"got ECAL doc: %@\n", aTag);
                         [self parseEcalDocument:aResult];
                     }
-                    else {
+                    else
+                    {
                         //no ecal doc found
                     }
 				}
-				else if([aTag isEqualToString:@"Message"]){
+				else if([aTag rangeOfString:kDebugDbEcalbyBoardID].location != NSNotFound)
+                {
+                    if ([[aResult objectForKey:@"rows"] count] && [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"key"])
+                    {
+                        //NSLog(@"got ECAL doc: %@\n", aTag);
+                        [self parseEcalforBoardID:aResult];
+                    }
+                    else
+                    {
+                        //no ecal doc found
+                    }
+				}
+				else if([aTag isEqualToString:@"Message"])
+                {
 					[aResult prettyPrint:@"CouchDB Message:"];
 				}
-				else {
+				else
+                {
 					[aResult prettyPrint:@"CouchDB"];
 				}
 			}
 		}
-		else if([aResult isKindOfClass:[NSArray class]]){
+		else if([aResult isKindOfClass:[NSArray class]])
+        {
             /*
              if([aTag isEqualToString:kListDB]){
              [aResult prettyPrint:@"CouchDB List:"];
@@ -2218,7 +2300,8 @@ void SwapLongBlock(void* p, int32_t n)
              */
             [aResult prettyPrint:@"CouchDB"];
 		}
-		else {
+		else
+        {
 			NSLog(@"DebugDB %@ %@\n",[[self xl3Link] crateName], aResult);
 		}
 	}
