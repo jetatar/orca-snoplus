@@ -132,7 +132,9 @@ enum {
     
     NSDictionary* boardIDRes;
     NSDictionary* hwforBoard;
+    BOOL ecalfound[5];
     
+    mb_t aSlotConfigBundle;
     mb_t safe_bundle[16];
     mb_t ecal_bundle[16];
     mb_t hw_bundle[16];
