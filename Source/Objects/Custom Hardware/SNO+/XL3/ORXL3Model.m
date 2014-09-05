@@ -1871,23 +1871,13 @@ void SwapLongBlock(void* p, int32_t n)
 
 // implementation of ORXL3Model
 // a database helper
-- (void) getDocbyBoardID:(NSString*) aBoardID
+- (void) getDocbyBoardID:(NSString*) aBoardID forSlot:(unsigned int)hwSlot
 {
-    // 0UL - treat setEcal_received as a 64-bit unsigned long 0.
-    // i.e: create a variable setEcal_received and asign it a unsigned long 0.
-//    [self setEcal_received:0UL];
-    
     NSString* requestString = [NSString stringWithFormat:@"_design/debugdb/_view/get_fec_by_board_id?descending=true&startkey=[%@,{}]&endkey=[%@,\"\"]&limit=1", aBoardID, aBoardID];
         
-    NSString* tagString = [NSString stringWithFormat:@"%@.%@", kDebugDbEcalbyBoardID, boardID];
+    NSString* tagString = [NSString stringWithFormat:@"%@.%@.%d", kDebugDbEcalbyBoardID, aBoardID, hwSlot];
         
     [[self debugDBRef] getDocumentId:requestString tag:tagString];
-    
-    NSLog(@"%@ ECAL docs requested from debugDB by boardID\n");
-    
-//    [self setEcalToOrcaInProgress:YES];
-    
-//    [self performSelector:@selector(ecalToOrcaDocumentsReceived) withObject:nil afterDelay:10.0];
 }
 
 
@@ -1971,69 +1961,9 @@ void SwapLongBlock(void* p, int32_t n)
     [self setEcalToOrcaInProgress:NO];
 }
 
--( void ) parseEcalforBoardID:(NSDictionary*) aResult
+
+- (void) parseEcalDocument:(NSDictionary*) aResult forSlot:(unsigned int)hwSlot
 {
-
-    NSDictionary* ecalDoc = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"value"];
-
-    hwforBoard = [ecalDoc objectForKey:@"hw"];
-
-    //NSString* boardName = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"key"];
-
-    /*
-    // Get motherboard IDs & daughter card IDs
-    NSString* idMB      = [ ecalDoc objectForKey:@"board_id" ];
-    NSDictionary* idDC  = [ ecalDoc objectForKey:@"id" ];
-    
-    NSArray* boardKeys = [aResult allKeysForObject:boardName];
-    NSString* boardKey = [boardKeys lastObject];
-*/
-
-    
-    /*
-    // Get the values for that particular card only.
-    if( boardName == idMB )
-    {
-    }
-
-    
-    
-    boardIDRes = [[NSDictionary alloc] init];
-*/
-}
-
-- (void) parseEcalDocument:(NSDictionary*)aResult
-{
-    // * The root object aResult is a dictionary
-    // * Within it, rows will be an array of dictionaries
-    // * Each dictionary has an array named elements
-    // * Each entry in that array is a dictionary
-    // * Within that, distance is another dictionary
-    // * Distance contains two strings, with keys "text" and "value"
-    
-    // Make an NSArray pointer point to:
-    //
-    // objectForKey - is an NSDictionary method. An NSDictionary is a collection class similar to an NSArray, except instead of using indexes, it uses keys to differentiate between items; objectForKey will return the data for a specific key. So if I have the word "english" stored in the key "language" if I use NSString *string = [myDic objectForKey:language]; I'll get "english"
-    //
-    //  [aResult objectForKey:@"rows"]
-    //      Returns [{"key":"keyname", "value":1},
-    //               {"key":"keyname", "value":1},
-    //                    etc...
-    //              ]
-    //
-    //  produces
-    //
-    //      {"rows":[
-    //            {"key":"keyname","value":1},
-    //            {"key":"keyname","value":2},
-    //            {"key":"keyname","value":2},
-    //             etc...
-    //  ]}
-    //
-    //  [[aResult objectForKey:@"rows"] objectAtIndex:0]
-    //  Gets the first record of rows objectAtIndex:0 is the same as keyArray[0]
-    //
-    // => Therefore the line below will create a pointer array of keys from the first row of the database query result.
     NSArray* keyArray       = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"key"];
 
     // Get the values of the entire table
@@ -2048,15 +1978,13 @@ void SwapLongBlock(void* p, int32_t n)
 
     short dbChMatch[5]      = { -999 };
     
-    NSLog(@"key array crate: %d slot: %d time: %@, id: %@\n", crate_num, slot_num, [keyArray objectAtIndex:2], docId);
+    NSLog( @"key array crate: %d slot: %d time: %@, id: %@\n", crate_num, slot_num, [keyArray objectAtIndex:2], docId );
     
     // Check crate number and DB number numbers match.
     if( [self crateNumber] != crate_num )
     {
         NSLog(@"%@ error parsing ECAL document, the crate number in the key array doesn't match: %d\n",
               [[self xl3Link] crateName], crate_num);
-
-        return;
     }
 
     // Check that hardware slot number and DB slot numbers match.
@@ -2064,8 +1992,6 @@ void SwapLongBlock(void* p, int32_t n)
     {
         NSLog(@"%@ error parsing ECAL document, the slot number in the key array doesn't match: %d\n",
               [self stationNumber], slot_num);
-
-        return;
     }
 
     NSDictionary* hwDic = [ecalDoc objectForKey:@"hw"];
@@ -2124,7 +2050,7 @@ void SwapLongBlock(void* p, int32_t n)
     
     if( !idMB )
     {
-        NSLog( @"Couldn't find motherboard in crate %@, slot %d\n", [[self xl3Link] crateName], slot_num );
+        NSLog( @"Couldn't find any database motherboard record when loading ECAL values for crate %@, slot %d\n", [[self xl3Link] crateName], slot_num );
         
         return;
     }
@@ -2135,7 +2061,7 @@ void SwapLongBlock(void* p, int32_t n)
     
     if( !idDC )
     {
-        NSLog( @"Couldn't find daughter cards in crate %@, slot %d\n", [[self xl3Link] crateName], slot_num );
+        NSLog( @"Couldn't find any daughter cards record when loading ECAL values for crate %@, slot %d\n", [[self xl3Link] crateName], slot_num );
 
         return;
     }
@@ -2282,9 +2208,9 @@ void SwapLongBlock(void* p, int32_t n)
     
     for( ch = 0; ch < 5; ch++ )
     {
-        if( !ecalfound[ch] )
+        if( !ecalfound[ch] && dbChMatch[ch] < 0 )
         {
-            [self getDocbyBoardID:bID[ch]];
+            [self getDocbyBoardID:bID[ch] forSlot:hwSlot];
 
             fullconfig = false;
         }
@@ -2402,29 +2328,38 @@ void SwapLongBlock(void* p, int32_t n)
             {
 				if([aTag rangeOfString:kDebugDbEcalDocGot].location != NSNotFound)
                 {
-                    //int key = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"key"];
-                    if ([[aResult objectForKey:@"rows"] count] && [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"key"])
+                    NSArray* tagparts = [aTag componentsSeparatedByString:@"."];
+                    
+                    if( [tagparts count] == 3 )
                     {
-                        //NSLog(@"got ECAL doc: %@\n", aTag);
-                        [self parseEcalDocument:aResult];
-                    }
-                    else
-                    {
-                        //no ecal doc found
+                        // slot for which DB query is meant to fill.
+                        int slot = [[tagparts objectAtIndex:2] intValue];
+                        
+                        if ([[aResult objectForKey:@"rows"] count] && [[[aResult objectForKey:@"rows"] objectAtIndex:0]    objectForKey:@"key"])
+                        {
+                            //NSLog(@"got ECAL doc: %@\n", aTag);
+                            [self parseEcalDocument:aResult forSlot:slot];
+                        }
+                        else
+                        {
+                            //no ecal doc found
+                        }
                     }
 				}
 				else if([aTag rangeOfString:kDebugDbEcalbyBoardID].location != NSNotFound)
                 {
-                    if ([[aResult objectForKey:@"rows"] count] && [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"key"])
+                    NSArray* tagparts = [aTag componentsSeparatedByString:@"."];
+                    
+                    if( [tagparts count] == 3 )
                     {
-                        //NSLog(@"got ECAL doc: %@\n", aTag);
-                        [self parseEcalforBoardID:aResult];
+                        int slot = [[tagparts objectAtIndex:2] intValue];
+
+                        if ([[aResult objectForKey:@"rows"] count] && [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"key"])
+                        {
+                            [self parseEcalDocument:aResult forSlot:slot];
+                        }
                     }
-                    else
-                    {
-                        //no ecal doc found
-                    }
-				}
+                }
 				else if([aTag isEqualToString:@"Message"])
                 {
 					[aResult prettyPrint:@"CouchDB Message:"];

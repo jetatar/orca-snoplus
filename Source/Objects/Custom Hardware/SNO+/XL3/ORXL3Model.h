@@ -260,10 +260,9 @@ enum {
 - (ORCouchDB*) debugDBRef;
 - (void) couchDBResult:(id)aResult tag:(NSString*)aTag op:(id)anOp;
 - (void) ecalToOrca;
-- (void) getDocbyBoardID:(NSString*) aBoardID;
+- (void) getDocbyBoardID:(NSString*) aBoardID forSlot:(unsigned int)hwSlot;
 - (void) ecalToOrcaDocumentsReceived;
-- (void) parseEcalDocument:(NSDictionary*)aResult;
--( void ) parseEcalforBoardID:(NSDictionary*) aResult;
+- (void) parseEcalDocument:(NSDictionary*)aResult forSlot:(unsigned int)hwSlot;
 - (void) updateUIFromEcalBundle:(NSDictionary*)aBundle slot:(unsigned int)aSlot;
 - (BOOL) isRelayClosedForSlot:(unsigned int)slot pc:(unsigned int)aPC;
 
