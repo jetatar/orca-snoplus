@@ -1894,11 +1894,12 @@ void SwapLongBlock(void* p, int32_t n)
     for( slot = 0; slot < 16; slot++ )
     {
         unsigned short ch = 5;
-        memset( &aSlotConfigBundle, 0, sizeof(mb_t) );
+//        memset( &aSlotConfigBundle[hwSlot], 0, sizeof(mb_t) );
+        memset( &aSlotConfigBundle, 0, sizeof(aSlotConfigBundle) );
 
         for( ch = 0; ch < 5; ch++ )
         {
-            ecalfound[ch] = false;
+            ecalfound[slot][ch] = false;
         }
         
         // Create a request string for each slot and crate.
@@ -1974,11 +1975,11 @@ void SwapLongBlock(void* p, int32_t n)
 
     // Get DB crate and slot numbers.
     unsigned int crate_num  = [[keyArray objectAtIndex:0] intValue];
-    unsigned int slot_num   = [[keyArray objectAtIndex:1] intValue];
+//    unsigned int slot_num   = [[keyArray objectAtIndex:1] intValue];
 
     short dbChMatch[5]      = { -999 };
     
-    NSLog( @"key array crate: %d slot: %d time: %@, id: %@\n", crate_num, slot_num, [keyArray objectAtIndex:2], docId );
+    NSLog( @"key array crate: %d slot: %d time: %@, id: %@\n", crate_num, hwSlot, [keyArray objectAtIndex:2], docId );
     
     // Check crate number and DB number numbers match.
     if( [self crateNumber] != crate_num )
@@ -1988,10 +1989,10 @@ void SwapLongBlock(void* p, int32_t n)
     }
 
     // Check that hardware slot number and DB slot numbers match.
-    if( [self stationNumber] != slot_num )
+    if( [self stationNumber] != hwSlot )
     {
         NSLog(@"%@ error parsing ECAL document, the slot number in the key array doesn't match: %d\n",
-              [self stationNumber], slot_num);
+              [self stationNumber], hwSlot);
     }
 
     NSDictionary* hwDic = [ecalDoc objectForKey:@"hw"];
@@ -1999,7 +2000,7 @@ void SwapLongBlock(void* p, int32_t n)
     if( !hwDic )
     {
         NSLog(@"%@ error parsing ECAL document, the hw dictionary missing for slot: %d\n",
-              [[self xl3Link] crateName], slot_num);
+              [[self xl3Link] crateName], hwSlot);
         
         return;
     }
@@ -2016,11 +2017,13 @@ void SwapLongBlock(void* p, int32_t n)
     
     for( ch = 0; ch < 5; ch++ )
     {
-        val = [self getBoardIDForSlot:[self stationNumber] chip:(ch + 1)];
+        val = [self getBoardIDForSlot:hwSlot chip:(ch + 1)];
 
         if( val == 0x0 )
         {
-            bID[ch] = @"----";
+            bID[ch] = @"0000";
+
+            NSLog(@"!!! Slot: %d, Ch: %d has an invalid boardID!", hwSlot, ch);
         }
         else
         {
@@ -2050,34 +2053,34 @@ void SwapLongBlock(void* p, int32_t n)
     
     if( !idMB )
     {
-        NSLog( @"Couldn't find any database motherboard record when loading ECAL values for crate %@, slot %d\n", [[self xl3Link] crateName], slot_num );
+        NSLog( @"Couldn't find any database motherboard record when loading ECAL values for crate %@, slot %d\n", [[self xl3Link] crateName], hwSlot );
         
         return;
     }
     else
     {
-        NSLog( @"Crate: %@, Slot: %d, Motherboard ID: %@\n", [[self xl3Link] crateName], slot_num, idMB );
+        NSLog( @"Crate: %@, Slot: %d, Motherboard ID: %@\n", [[self xl3Link] crateName], hwSlot, idMB );
     }
     
     if( !idDC )
     {
-        NSLog( @"Couldn't find any daughter cards record when loading ECAL values for crate %@, slot %d\n", [[self xl3Link] crateName], slot_num );
+        NSLog( @"Couldn't find any daughter cards record when loading ECAL values for crate %@, slot %d\n", [[self xl3Link] crateName], hwSlot );
 
         return;
     }
     else
     {
-        NSLog( @"Crate: %@, Slot: %d, DC id: %@\n", [[self xl3Link] crateName], slot_num, idDC );
+        NSLog( @"Crate: %@, Slot: %d, DC id: %@\n", [[self xl3Link] crateName], hwSlot, idDC );
     }
 
     //
     // Check MB entries.
     //
-    if( !ecalfound[0] )
+    if( !ecalfound[hwSlot][0] )
     {
         if( [idMB isEqualToString:bID[0]] )
         {
-            NSLog( @"Slot: %d, HWMB: %@ and DBMB: %@ match.\n", slot_num, bID[0], idMB );
+            NSLog( @"Slot: %d, HWMB: %@ and DBMB: %@ match.\n", hwSlot, bID[0], idMB );
 
             dbChMatch[0] = 0;
         }
@@ -2092,17 +2095,19 @@ void SwapLongBlock(void* p, int32_t n)
     //
     for( ch = 1; ch < 5; ch++ )
     {
-        if( !ecalfound[ch] )
+        if( !ecalfound[hwSlot][ch] )
         {
             // HWDC channels match DBDC channels.
             if( [[dbDCId objectAtIndex:ch - 1] isEqualToString:bID[ch]] )
             {
-                NSLog( @"Slot: %d, HWMB: %@ and DBMB: %@ match.\n", slot_num, bID[ch], [dbDCId objectAtIndex:ch - 1] );
+                NSLog( @"Slot: %d, HWDC: %@ and DBDC: %@ match.\n", hwSlot, bID[ch], [dbDCId objectAtIndex:ch - 1] );
                 
                 dbChMatch[ch] = ch;
             }
             else // can we find that HWDC anywhere in that database entry?
             {
+                NSLog( @"!!! Slot: %d, HWDC: %@ and DBDC: %@ DO NOT match.\n", hwSlot, bID[ch], [dbDCId objectAtIndex:ch - 1] );
+
                 // Iterate through all DBDCs for a match.
                 for( id k in dbDCId )
                 {
@@ -2120,33 +2125,33 @@ void SwapLongBlock(void* p, int32_t n)
     unsigned short i, j, k;
 
     // Copy MB ECAL from DB to HW
-    if( dbChMatch[0] >= 0 && !ecalfound[0] )
+    if( dbChMatch[0] >= 0 && !ecalfound[hwSlot][0] )
     {
-        aSlotConfigBundle.mb_id = 0;
+        aSlotConfigBundle[hwSlot].mb_id = 0;
         
-        aSlotConfigBundle.tcmos.vmax    = [[[hwDic objectForKey:@"tcmos"] objectForKey:@"vmax"] intValue];
-        aSlotConfigBundle.tcmos.tacref  = [[[hwDic objectForKey:@"tcmos"] objectForKey:@"vtacref"] intValue];
+        aSlotConfigBundle[hwSlot].tcmos.vmax    = [[[hwDic objectForKey:@"tcmos"] objectForKey:@"vmax"] intValue];
+        aSlotConfigBundle[hwSlot].tcmos.tacref  = [[[hwDic objectForKey:@"tcmos"] objectForKey:@"vtacref"] intValue];
         
         // Mother board specific.
         for( i = 0; i < 2; i++ )
         {
-            aSlotConfigBundle.tcmos.isetm[i] = [[[[hwDic objectForKey:@"tcmos"] objectForKey:@"isetm"] objectAtIndex:i] intValue];
-            aSlotConfigBundle.tcmos.iseta[i] = [[[[hwDic objectForKey:@"tcmos"] objectForKey:@"iseta"] objectAtIndex:i] intValue];
+            aSlotConfigBundle[hwSlot].tcmos.isetm[i] = [[[[hwDic objectForKey:@"tcmos"] objectForKey:@"isetm"] objectAtIndex:i] intValue];
+            aSlotConfigBundle[hwSlot].tcmos.iseta[i] = [[[[hwDic objectForKey:@"tcmos"] objectForKey:@"iseta"] objectAtIndex:i] intValue];
         }
 
-        aSlotConfigBundle.vint  = [[hwDic objectForKey:@"vint"] intValue];
-        aSlotConfigBundle.hvref = [[hwDic objectForKey:@"hvref"] intValue];
+        aSlotConfigBundle[hwSlot].vint  = [[hwDic objectForKey:@"vint"] intValue];
+        aSlotConfigBundle[hwSlot].hvref = [[hwDic objectForKey:@"hvref"] intValue];
         
-        ecalfound[ch] = true;
+        ecalfound[hwSlot][ch] = true;
     }
     
     // Copy DC ECAL from DB to HW
     for( ch = 1; ch < 5; ch++ )
     {
-        NSLog( @"ch %d: ecalfound %d, dbchmatch: %d\n", ch, ecalfound[ch], dbChMatch[ch] );
+        NSLog( @"ch %d: ecalfound %d, dbchmatch: %d\n", ch, ecalfound[hwSlot][ch], dbChMatch[ch] );
 
         // Load ECALs found a DC config in database.
-        if( dbChMatch[ch] > 0 && !ecalfound[ch] )
+        if( dbChMatch[ch] > 0 && !ecalfound[hwSlot][ch] )
         {
             unsigned short hwCh         = ch - 1;
             unsigned short hwChFirstIdx = 8 * hwCh;
@@ -2156,32 +2161,32 @@ void SwapLongBlock(void* p, int32_t n)
             unsigned short dbChFirstIdx = 8 * dbCh;
             unsigned short dbChLastIdx  = dbChFirstIdx + 8;
 
-            aSlotConfigBundle.dc_id[hwCh] = 0;
+            aSlotConfigBundle[hwSlot].dc_id[hwCh] = 0;
 
             // Load values for that channel
             for( i = 0; i < 2; i++ )
             {
                 for( k = dbChFirstIdx, j = hwChFirstIdx; j < hwChLastIdx && k < dbChLastIdx; j++, k++ )
                 {
-                    aSlotConfigBundle.vbal[i][j]         = [[[[hwDic objectForKey:@"vbal"] objectAtIndex:i] objectAtIndex:k] intValue];
+                    aSlotConfigBundle[hwSlot].vbal[i][j]         = [[[[hwDic objectForKey:@"vbal"] objectAtIndex:i] objectAtIndex:k] intValue];
                     
                     if( i == 0 )    // Do it once
                     {
-                        aSlotConfigBundle.vthr[j]            = [[[hwDic objectForKey:@"vthr"] objectAtIndex:k] intValue];
+                        aSlotConfigBundle[hwSlot].vthr[j]            = [[[hwDic objectForKey:@"vthr"] objectAtIndex:k] intValue];
                         
-                        aSlotConfigBundle.tcmos.tac_shift[j] = [[[[hwDic objectForKey:@"tcmos"] objectForKey:@"tac_trim"] objectAtIndex:k] intValue];
+                        aSlotConfigBundle[hwSlot].tcmos.tac_shift[j] = [[[[hwDic objectForKey:@"tcmos"] objectForKey:@"tac_trim"] objectAtIndex:k] intValue];
                         
-                        aSlotConfigBundle.tr100.mask[j]      = [[[[hwDic objectForKey:@"tr100"] objectForKey:@"mask"] objectAtIndex:k] intValue];
+                        aSlotConfigBundle[hwSlot].tr100.mask[j]      = [[[[hwDic objectForKey:@"tr100"] objectForKey:@"mask"] objectAtIndex:k] intValue];
                         
-                        aSlotConfigBundle.tr100.tdelay[j]    = [[[[hwDic objectForKey:@"tr100"] objectForKey:@"delay"] objectAtIndex:k] intValue];
+                        aSlotConfigBundle[hwSlot].tr100.tdelay[j]    = [[[[hwDic objectForKey:@"tr100"] objectForKey:@"delay"] objectAtIndex:k] intValue];
                         
-                        aSlotConfigBundle.tr20.mask[j]       = [[[[hwDic objectForKey:@"tr20"] objectForKey:@"mask"] objectAtIndex:k] intValue];
+                        aSlotConfigBundle[hwSlot].tr20.mask[j]       = [[[[hwDic objectForKey:@"tr20"] objectForKey:@"mask"] objectAtIndex:k] intValue];
                         
-                        aSlotConfigBundle.tr20.tdelay[j]     = [[[[hwDic objectForKey:@"tr20"] objectForKey:@"delay"] objectAtIndex:k] intValue];
+                        aSlotConfigBundle[hwSlot].tr20.tdelay[j]     = [[[[hwDic objectForKey:@"tr20"] objectForKey:@"delay"] objectAtIndex:k] intValue];
                         
-                        aSlotConfigBundle.tr20.twidth[j]     = [[[[hwDic objectForKey:@"tr20"] objectForKey:@"width"] objectAtIndex:k] intValue];
+                        aSlotConfigBundle[hwSlot].tr20.twidth[j]     = [[[[hwDic objectForKey:@"tr20"] objectForKey:@"width"] objectAtIndex:k] intValue];
                         
-                        aSlotConfigBundle.scmos[j]           = [[[[hwDic objectForKey:@"tr20"] objectForKey:@"scmos"] objectAtIndex:k] intValue];
+                        aSlotConfigBundle[hwSlot].scmos[j]           = [[[[hwDic objectForKey:@"tr20"] objectForKey:@"scmos"] objectAtIndex:k] intValue];
                     }
                 }
             }
@@ -2194,13 +2199,13 @@ void SwapLongBlock(void* p, int32_t n)
             
             for( k = dbChFirstIdx, j = hwChFirstIdx; j < hwChLastIdx && k < dbChLastIdx; j++, k++ )
             {
-                aSlotConfigBundle.tdisc.rmp[j]   = [[[[hwDic objectForKey:@"tdisc"] objectForKey:@"rmp"] objectAtIndex:k] intValue];
-                aSlotConfigBundle.tdisc.rmpup[j] = [[[[hwDic objectForKey:@"tdisc"] objectForKey:@"rmpup"] objectAtIndex:k] intValue];
-                aSlotConfigBundle.tdisc.vsi[j]   = [[[[hwDic objectForKey:@"tdisc"] objectForKey:@"vsi"] objectAtIndex:k] intValue];
-                aSlotConfigBundle.tdisc.vli[j]   = [[[[hwDic objectForKey:@"tdisc"] objectForKey:@"vli"] objectAtIndex:k] intValue];
+                aSlotConfigBundle[hwSlot].tdisc.rmp[j]   = [[[[hwDic objectForKey:@"tdisc"] objectForKey:@"rmp"] objectAtIndex:k] intValue];
+                aSlotConfigBundle[hwSlot].tdisc.rmpup[j] = [[[[hwDic objectForKey:@"tdisc"] objectForKey:@"rmpup"] objectAtIndex:k] intValue];
+                aSlotConfigBundle[hwSlot].tdisc.vsi[j]   = [[[[hwDic objectForKey:@"tdisc"] objectForKey:@"vsi"] objectAtIndex:k] intValue];
+                aSlotConfigBundle[hwSlot].tdisc.vli[j]   = [[[[hwDic objectForKey:@"tdisc"] objectForKey:@"vli"] objectAtIndex:k] intValue];
             }
             
-            ecalfound[ch] = true;
+            ecalfound[hwSlot][ch] = true;
         }
     }
 
@@ -2208,8 +2213,10 @@ void SwapLongBlock(void* p, int32_t n)
     
     for( ch = 0; ch < 5; ch++ )
     {
-        if( !ecalfound[ch] && dbChMatch[ch] < 0 )
+        if( !ecalfound[hwSlot][ch] && dbChMatch[ch] < 0 )
         {
+            NSLog(@"Sending out a DB query for board ID: %@ for slot %d\n", bID[ch], hwSlot);
+            
             [self getDocbyBoardID:bID[ch] forSlot:hwSlot];
 
             fullconfig = false;
@@ -2218,13 +2225,13 @@ void SwapLongBlock(void* p, int32_t n)
 
     if( fullconfig )
     {
-        aSlotConfigBundle.disable_mask = 0;
+        aSlotConfigBundle[hwSlot].disable_mask = 0;
         
-        memcpy(&ecal_bundle[slot_num], &aSlotConfigBundle, sizeof(mb_t));
-        [self updateUIFromEcalBundle:hwDic slot:slot_num];
-        [self synthesizeFECIntoBundle:&hw_bundle[slot_num] forSlot:slot_num];
+        memcpy(&ecal_bundle[hwSlot], &aSlotConfigBundle[hwSlot], sizeof(mb_t));
+        [self updateUIFromEcalBundle:hwDic slot:hwSlot];
+        [self synthesizeFECIntoBundle:&hw_bundle[hwSlot] forSlot:hwSlot];
         
-        [self setEcal_received:[self ecal_received] | 1UL << slot_num];
+        [self setEcal_received:[self ecal_received] | 1UL << hwSlot];
         //NSLog(@"ecal received mask: 0x%08x\n", [self ecal_received]);
         if ([self ecal_received] == 0xffffUL) {
             [self ecalToOrcaDocumentsReceived];
@@ -2350,12 +2357,20 @@ void SwapLongBlock(void* p, int32_t n)
                 {
                     NSArray* tagparts = [aTag componentsSeparatedByString:@"."];
                     
+                    NSLog(@">> Returning from a EcalBoBoardID Query.\n");
+                    
                     if( [tagparts count] == 3 )
                     {
                         int slot = [[tagparts objectAtIndex:2] intValue];
 
+                        NSLog(@">> Returning from a EcalBoBoardID Query and tagging.\n");
+                        
+                        NSLog(@"%@\n", aResult);
+
                         if ([[aResult objectForKey:@"rows"] count] && [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"key"])
                         {
+                            NSLog(@">> Returning from a EcalBoBoardID Query and parsing.\n");
+
                             [self parseEcalDocument:aResult forSlot:slot];
                         }
                     }
