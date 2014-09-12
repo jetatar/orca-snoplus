@@ -1873,7 +1873,7 @@ void SwapLongBlock(void* p, int32_t n)
 // a database helper
 - (void) getDocbyBoardID:(NSString*) aBoardID forSlot:(unsigned int)hwSlot
 {
-    NSString* requestString = [NSString stringWithFormat:@"_design/debugdb/_view/get_fec_by_board_id?descending=true&startkey=[\"%@\",{}]&endkey=[\"%@\",\"\"]&limit=1", aBoardID, aBoardID];
+    NSString* requestString = [NSString stringWithFormat:@"_design/debugdb/_view/get_fec_by_board_id?include_docs=true&descending=true&startkey=[\"%@\",{}]&endkey=[\"%@\",\"\"]&limit=1", aBoardID, aBoardID];
         
     NSString* tagString = [NSString stringWithFormat:@"%@.%@.%d", kDebugDbEcalbyBoardID, aBoardID, hwSlot];
         
@@ -1979,7 +1979,7 @@ void SwapLongBlock(void* p, int32_t n)
 
     short dbChMatch[5]      = { -999 };
     
-    NSLog( @"key array crate: %d slot: %d time: %@, id: %@\n", crate_num, hwSlot, [keyArray objectAtIndex:2], docId );
+//    NSLog( @"key array crate: %d slot: %d time: %@, id: %@\n", crate_num, hwSlot, [keyArray objectAtIndex:2], docId );
     
     // Check crate number and DB number numbers match.
     if( [self crateNumber] != crate_num )
@@ -1997,6 +1997,8 @@ void SwapLongBlock(void* p, int32_t n)
 
     NSDictionary* hwDic = [ecalDoc objectForKey:@"hw"];
 
+    NSLog(@"%@\n\n", hwDic);
+    
     if( !hwDic )
     {
         NSLog(@"%@ error parsing ECAL document, the hw dictionary missing for slot: %d\n",
@@ -2361,13 +2363,16 @@ void SwapLongBlock(void* p, int32_t n)
                     
                     NSLog(@">> Returning from a EcalBoBoardID Query with tags: %d\n", [tagparts count]);
                     NSLog(@"%@\n%@", tagparts, [tagparts objectAtIndex:0]);
+
+                    NSLog(@"%@\n\n\n", aResult);
+                    
                     if( [tagparts count] == 3 )
                     {
                         int slot = [[tagparts objectAtIndex:2] intValue];
 
                         NSLog(@">> Returning from a EcalBoBoardID Query and tagging.\n");
                         
-                        NSLog(@"%@\n", aResult);
+//                        NSLog(@"%@\n", aResult);
 
                         if ([[aResult objectForKey:@"rows"] count] && [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"key"])
                         {
