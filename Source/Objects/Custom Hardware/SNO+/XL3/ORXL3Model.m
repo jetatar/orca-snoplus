@@ -1873,7 +1873,7 @@ void SwapLongBlock(void* p, int32_t n)
 // a database helper
 - (void) getDocbyBoardID:(NSString*) aBoardID forSlot:(unsigned int)hwSlot
 {
-    NSString* requestString = [NSString stringWithFormat:@"_design/debugdb/_view/get_fec_by_board_id?descending=true&startkey=[%@,{}]&endkey=[%@,\"\"]&limit=1", aBoardID, aBoardID];
+    NSString* requestString = [NSString stringWithFormat:@"_design/debugdb/_view/get_fec_by_board_id?descending=true&startkey=[\"%@\",{}]&endkey=[\"%@\",\"\"]&limit=1", aBoardID, aBoardID];
         
     NSString* tagString = [NSString stringWithFormat:@"%@.%@.%d", kDebugDbEcalbyBoardID, aBoardID, hwSlot];
         
@@ -2023,7 +2023,7 @@ void SwapLongBlock(void* p, int32_t n)
         {
             bID[ch] = @"0000";
 
-            NSLog(@"!!! Slot: %d, Ch: %d has an invalid boardID!", hwSlot, ch);
+            NSLog(@"!!! Slot: %d, Ch: %d has an invalid boardID!\n", hwSlot, ch);
         }
         else
         {
@@ -2337,6 +2337,8 @@ void SwapLongBlock(void* p, int32_t n)
                 {
                     NSArray* tagparts = [aTag componentsSeparatedByString:@"."];
                     
+                    NSLog(@">> Returning from EcalToOrca Query with tags: %d\n", [tagparts count]);
+
                     if( [tagparts count] == 3 )
                     {
                         // slot for which DB query is meant to fill.
@@ -2352,13 +2354,13 @@ void SwapLongBlock(void* p, int32_t n)
                             //no ecal doc found
                         }
                     }
-				}
+                }
 				else if([aTag rangeOfString:kDebugDbEcalbyBoardID].location != NSNotFound)
                 {
                     NSArray* tagparts = [aTag componentsSeparatedByString:@"."];
                     
-                    NSLog(@">> Returning from a EcalBoBoardID Query.\n");
-                    
+                    NSLog(@">> Returning from a EcalBoBoardID Query with tags: %d\n", [tagparts count]);
+                    NSLog(@"%@\n%@", tagparts, [tagparts objectAtIndex:0]);
                     if( [tagparts count] == 3 )
                     {
                         int slot = [[tagparts objectAtIndex:2] intValue];
