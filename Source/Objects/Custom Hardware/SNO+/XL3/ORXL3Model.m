@@ -1891,7 +1891,7 @@ void SwapLongBlock(void* p, int32_t n)
     [self setEcal_received:0UL];
     
     // Iterate through slots requesting ECAL docs for every slot in a create.
-    for( slot = 0; slot < 16; slot++ )
+    for( slot = 0; slot < 3; slot++ )
     {
         unsigned short ch = 5;
 //        memset( &aSlotConfigBundle[hwSlot], 0, sizeof(mb_t) );
@@ -1899,7 +1899,8 @@ void SwapLongBlock(void* p, int32_t n)
 
         for( ch = 0; ch < 5; ch++ )
         {
-            ecalfound[slot][ch] = false;
+            ecalfound[slot][ch]     = false;
+            boardreqested[slot][ch] = false;
         }
         
         // Create a request string for each slot and crate.
@@ -1921,7 +1922,7 @@ void SwapLongBlock(void* p, int32_t n)
     // similar to [self ecalToOrcaDocumentsReceived]
     // withObject:nil - no arguments to pass
     // delay the method call for 10 seconds.
-    [self performSelector:@selector(ecalToOrcaDocumentsReceived) withObject:nil afterDelay:10.0];
+    [self performSelector:@selector(ecalToOrcaDocumentsReceived) withObject:nil afterDelay:600.0];
 }
 
 
@@ -1968,7 +1969,17 @@ void SwapLongBlock(void* p, int32_t n)
     NSArray* keyArray       = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"key"];
 
     // Get the values of the entire table
-    NSDictionary* ecalDoc   = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"value"];
+    NSDictionary* ecalDoc   = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"doc"];
+    
+    // If this couchdb query is from the ecaltoorca function rather than getdocbyboardid load last DB known config without checking board IDs (keep Jarek's functionality).  Check and overwrite config values later.
+    bool fromecaltoorca     = false;
+
+    if( !ecalDoc )
+    {
+        ecalDoc = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"value"];
+        
+        fromecaltoorca = true;
+    }
     
     // get the document ID
     NSString* docId         = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"id"];
@@ -1977,10 +1988,10 @@ void SwapLongBlock(void* p, int32_t n)
     unsigned int crate_num  = [[keyArray objectAtIndex:0] intValue];
 //    unsigned int slot_num   = [[keyArray objectAtIndex:1] intValue];
 
-    short dbChMatch[5]      = { -999 };
+    short dbChMatch[5]      = { -999, -999, -999, -999, -999 };
     
 //    NSLog( @"key array crate: %d slot: %d time: %@, id: %@\n", crate_num, hwSlot, [keyArray objectAtIndex:2], docId );
-    
+/*
     // Check crate number and DB number numbers match.
     if( [self crateNumber] != crate_num )
     {
@@ -1994,11 +2005,13 @@ void SwapLongBlock(void* p, int32_t n)
         NSLog(@"%@ error parsing ECAL document, the slot number in the key array doesn't match: %d\n",
               [self stationNumber], hwSlot);
     }
-
+*/
     NSDictionary* hwDic = [ecalDoc objectForKey:@"hw"];
 
-    NSLog(@"%@\n\n", hwDic);
-    
+//    NSLog(@"%@\n", aResult);
+//    NSLog(@"%@\n\n\n", ecalDoc);
+//    NSLog(@"%@\n\n", hwDic);
+
     if( !hwDic )
     {
         NSLog(@"%@ error parsing ECAL document, the hw dictionary missing for slot: %d\n",
@@ -2006,7 +2019,6 @@ void SwapLongBlock(void* p, int32_t n)
         
         return;
     }
-
     //
     // Get the board IDs from XL3
     //
@@ -2015,7 +2027,7 @@ void SwapLongBlock(void* p, int32_t n)
 
 	[self setXl3OpsRunning:YES forKey:@"compositeBoardID"];
 	
-    NSLog(@"%@ Get Board IDs ...\n", [[self xl3Link] crateName]);
+//    NSLog(@"%@ Get Board IDs ...\n", [[self xl3Link] crateName]);
     
     for( ch = 0; ch < 5; ch++ )
     {
@@ -2025,11 +2037,13 @@ void SwapLongBlock(void* p, int32_t n)
         {
             bID[ch] = @"0000";
 
-            NSLog(@"!!! Slot: %d, Ch: %d has an invalid boardID!\n", hwSlot, ch);
+            NSLog(@"!!! Slot: %d, Ch: %d has an invalid HW boardID!\n", hwSlot, ch);
         }
         else
         {
             bID[ch] = [NSString stringWithFormat:@"%04x", val];
+
+            NSLog(@"Slot: %d, Ch %d Board: %@\n", hwSlot, ch, bID[ch]);
         }
     }
     
@@ -2110,16 +2124,18 @@ void SwapLongBlock(void* p, int32_t n)
             {
                 NSLog( @"!!! Slot: %d, HWDC: %@ and DBDC: %@ DO NOT match.\n", hwSlot, bID[ch], [dbDCId objectAtIndex:ch - 1] );
 
+                dbChMatch[ch] = -999;
+
                 // Iterate through all DBDCs for a match.
                 for( id k in dbDCId )
                 {
                     if( [k isEqualToString:bID[ch]] )
                     {
-                        NSLog( @"!!! Found board in a different channel!" );
+                        NSLog( @"!!! Found board in a different channel!\n" );
+
+                        dbChMatch[ch] = ch;
                     }
-                }
-                
-                dbChMatch[ch] = -999;
+                }                
             }
         }
     }
@@ -2127,7 +2143,7 @@ void SwapLongBlock(void* p, int32_t n)
     unsigned short i, j, k;
 
     // Copy MB ECAL from DB to HW
-    if( dbChMatch[0] >= 0 && !ecalfound[hwSlot][0] )
+    if( dbChMatch[0] >= 0 && !ecalfound[hwSlot][0] || fromecaltoorca )
     {
         aSlotConfigBundle[hwSlot].mb_id = 0;
         
@@ -2144,22 +2160,31 @@ void SwapLongBlock(void* p, int32_t n)
         aSlotConfigBundle[hwSlot].vint  = [[hwDic objectForKey:@"vint"] intValue];
         aSlotConfigBundle[hwSlot].hvref = [[hwDic objectForKey:@"hvref"] intValue];
         
-        ecalfound[hwSlot][ch] = true;
+        if( !fromecaltoorca )
+        {
+            ecalfound[hwSlot][0] = true;
+        }
     }
     
     // Copy DC ECAL from DB to HW
     for( ch = 1; ch < 5; ch++ )
     {
-        NSLog( @"ch %d: ecalfound %d, dbchmatch: %d\n", ch, ecalfound[hwSlot][ch], dbChMatch[ch] );
+        NSLog( @"ch %d: ecalfound %d, dbch match: %d\n", ch, ecalfound[hwSlot][ch], dbChMatch[ch] );
 
         // Load ECALs found a DC config in database.
-        if( dbChMatch[ch] > 0 && !ecalfound[hwSlot][ch] )
+        if( dbChMatch[ch] > 0 && !ecalfound[hwSlot][ch] || fromecaltoorca )
         {
             unsigned short hwCh         = ch - 1;
             unsigned short hwChFirstIdx = 8 * hwCh;
             unsigned short hwChLastIdx  = hwChFirstIdx + 8;
             
             unsigned short dbCh = dbChMatch[ch] - 1; // Since dbChMatch = 0 is MB
+
+            if( fromecaltoorca )
+            {
+                dbCh = ch - 1;
+            }
+            
             unsigned short dbChFirstIdx = 8 * dbCh;
             unsigned short dbChLastIdx  = dbChFirstIdx + 8;
 
@@ -2207,7 +2232,10 @@ void SwapLongBlock(void* p, int32_t n)
                 aSlotConfigBundle[hwSlot].tdisc.vli[j]   = [[[[hwDic objectForKey:@"tdisc"] objectForKey:@"vli"] objectAtIndex:k] intValue];
             }
             
-            ecalfound[hwSlot][ch] = true;
+            if( !fromecaltoorca )
+            {
+                ecalfound[hwSlot][ch] = true;
+            }
         }
     }
 
@@ -2215,13 +2243,14 @@ void SwapLongBlock(void* p, int32_t n)
     
     for( ch = 0; ch < 5; ch++ )
     {
-        if( !ecalfound[hwSlot][ch] && dbChMatch[ch] < 0 )
+        if( !ecalfound[hwSlot][ch] && dbChMatch[ch] < 0 && !boardreqested[hwSlot][ch] )
         {
-            NSLog(@"Sending out a DB query for board ID: %@ for slot %d\n", bID[ch], hwSlot);
+            NSLog(@"Sending out a DB query for CH %d for board ID: %@ for slot %d\n", ch, bID[ch], hwSlot);
             
             [self getDocbyBoardID:bID[ch] forSlot:hwSlot];
-
-            fullconfig = false;
+            
+            fullconfig                  = false;
+            boardreqested[hwSlot][ch]   = true;
         }
     }
 
@@ -2230,6 +2259,7 @@ void SwapLongBlock(void* p, int32_t n)
         aSlotConfigBundle[hwSlot].disable_mask = 0;
         
         memcpy(&ecal_bundle[hwSlot], &aSlotConfigBundle[hwSlot], sizeof(mb_t));
+        
         [self updateUIFromEcalBundle:hwDic slot:hwSlot];
         [self synthesizeFECIntoBundle:&hw_bundle[hwSlot] forSlot:hwSlot];
         
@@ -2339,7 +2369,9 @@ void SwapLongBlock(void* p, int32_t n)
                 {
                     NSArray* tagparts = [aTag componentsSeparatedByString:@"."];
                     
-                    NSLog(@">> Returning from EcalToOrca Query with tags: %d\n", [tagparts count]);
+//                    NSLog(@"%@", aResult);
+                    
+//                    NSLog(@">> Returning from EcalToOrca Query with tags: %d\n", [tagparts count]);
 
                     if( [tagparts count] == 3 )
                     {
@@ -2360,24 +2392,13 @@ void SwapLongBlock(void* p, int32_t n)
 				else if([aTag rangeOfString:kDebugDbEcalbyBoardID].location != NSNotFound)
                 {
                     NSArray* tagparts = [aTag componentsSeparatedByString:@"."];
-                    
-                    NSLog(@">> Returning from a EcalBoBoardID Query with tags: %d\n", [tagparts count]);
-                    NSLog(@"%@\n%@", tagparts, [tagparts objectAtIndex:0]);
 
-                    NSLog(@"%@\n\n\n", aResult);
-                    
                     if( [tagparts count] == 3 )
                     {
                         int slot = [[tagparts objectAtIndex:2] intValue];
 
-                        NSLog(@">> Returning from a EcalBoBoardID Query and tagging.\n");
-                        
-//                        NSLog(@"%@\n", aResult);
-
                         if ([[aResult objectForKey:@"rows"] count] && [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"key"])
                         {
-                            NSLog(@">> Returning from a EcalBoBoardID Query and parsing.\n");
-
                             [self parseEcalDocument:aResult forSlot:slot];
                         }
                     }

@@ -132,7 +132,8 @@ enum {
     
     NSDictionary* boardIDRes;
     NSDictionary* hwforBoard;
-    BOOL ecalfound[16][5];
+    bool ecalfound[16][5];
+    bool boardreqested[16][5];  // make sure docbyboardid is only sent once per board.
     
     mb_t aSlotConfigBundle[16];
     mb_t safe_bundle[16];
