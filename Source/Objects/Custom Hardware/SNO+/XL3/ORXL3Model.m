@@ -1110,6 +1110,7 @@ void SwapLongBlock(void* p, int32_t n)
             
             for (channel=0; channel<8; channel++) {
                 aBundle->vthr[dbNum*8+channel] = [[fec dc:dbNum] vt:channel];
+                aBundle->vthr_zero[dbNum * 8 + channel] = [[fec dc:dbNum] vt_zero:channel];
                 aBundle->tcmos.tac_shift[dbNum*8+channel] = [[fec dc:dbNum] tac0trim:channel];
                 aBundle->scmos[dbNum*8+channel] = [[fec dc:dbNum] tac1trim:channel];
 
@@ -2201,6 +2202,8 @@ void SwapLongBlock(void* p, int32_t n)
                     {
                         aSlotConfigBundle[hwSlot].vthr[j]            = [[[hwDic objectForKey:@"vthr"] objectAtIndex:k] intValue];
                         
+                        aSlotConfigBundle[hwSlot].vthr_zero[j]       = [[[hwDic objectForKey:@"vthr_zero"] objectAtIndex:k] intValue];
+                        
                         aSlotConfigBundle[hwSlot].tcmos.tac_shift[j] = [[[[hwDic objectForKey:@"tcmos"] objectForKey:@"tac_trim"] objectAtIndex:k] intValue];
                         
                         aSlotConfigBundle[hwSlot].tr100.mask[j]      = [[[[hwDic objectForKey:@"tr100"] objectForKey:@"mask"] objectAtIndex:k] intValue];
@@ -2258,9 +2261,12 @@ void SwapLongBlock(void* p, int32_t n)
     {
         aSlotConfigBundle[hwSlot].disable_mask = 0;
         
+        // ecal_bundle doesn't seem to be used anywhere.
         memcpy(&ecal_bundle[hwSlot], &aSlotConfigBundle[hwSlot], sizeof(mb_t));
         
+        // updateUIFromEcalBundle should only get set if we have a full config.
         [self updateUIFromEcalBundle:hwDic slot:hwSlot];
+        
         [self synthesizeFECIntoBundle:&hw_bundle[hwSlot] forSlot:hwSlot];
         
         [self setEcal_received:[self ecal_received] | 1UL << hwSlot];
@@ -2286,65 +2292,72 @@ void SwapLongBlock(void* p, int32_t n)
         }
     }
     
-    for (dbNum=0; dbNum<4; dbNum++) {
-        if ([fec dcPresent:dbNum]) {
+    // Iterate over daughterboards
+    for( dbNum = 0; dbNum < 4; dbNum++ )
+    {
+        if( [fec dcPresent:dbNum] )
+        {
             unsigned short channel;
             unsigned short itg;
 
-            for (channel=0; channel<8; channel++) {
+            // Iterate over channels for each DB.
+            for( channel = 0; channel < 8; channel++ )
+            {
                 [[fec dc:dbNum] setVt_ecal:channel
-                                 withValue:[[[hwDic objectForKey:@"vthr"] objectAtIndex:dbNum*8+channel] intValue]];
+                                 withValue:aSlotConfigBundle[aSlot].vthr[dbNum * 8 + channel]];
+                
                 [[fec dc:dbNum] setVt_zero:channel
-                                 withValue:[[[hwDic objectForKey:@"vthr_zero"] objectAtIndex:dbNum*8+channel] intValue]];
+                                 withValue:aSlotConfigBundle[aSlot].vthr_zero[dbNum * 8 + channel]];
 
                 [[fec dc:dbNum] setTac0trim:channel
-                                  withValue:[[[[hwDic objectForKey:@"tcmos"] objectForKey:@"tac_trim"] objectAtIndex:dbNum*8+channel] intValue]];
-
-                [[fec dc:dbNum] setTac1trim:channel
-                                  withValue:[[[[hwDic objectForKey:@"tr20"] objectForKey:@"scmos"] objectAtIndex:dbNum*8+channel] intValue]];
+                                  withValue:aSlotConfigBundle[aSlot].tcmos.tac_shift[dbNum * 8 + channel] ];
                 
-                for (itg=0; itg<2; itg++) {
-                    [[fec dc:dbNum] setVb:itg*8+channel
-                                withValue:[[[[hwDic objectForKey:@"vbal"] objectAtIndex:itg] objectAtIndex:dbNum*8+channel] intValue]];
+                [[fec dc:dbNum] setTac1trim:channel
+                                  withValue:aSlotConfigBundle[aSlot].scmos[dbNum * 8 + channel]];
+                
+                for( itg = 0; itg < 2; itg++ )
+                {
+                    [[fec dc:dbNum] setVb:itg * 8 + channel
+                                withValue:aSlotConfigBundle[aSlot].vbal[itg][dbNum * 8 + channel]];
                 }
                 
                 [[fec dc:dbNum] setNs100width:channel
-                                    withValue:[[[[hwDic objectForKey:@"tr100"] objectForKey:@"delay"] objectAtIndex:dbNum*8+channel] intValue]];
-
+                                    withValue:aSlotConfigBundle[aSlot].tr100.tdelay[dbNum * 8 + channel]];
+                 
                 [[fec dc:dbNum] setNs20width:channel
-                                    withValue:[[[[hwDic objectForKey:@"tr20"] objectForKey:@"width"] objectAtIndex:dbNum*8+channel] intValue]];
+                                   withValue:aSlotConfigBundle[aSlot].tr20.twidth[dbNum * 8 + channel]];
 
                 [[fec dc:dbNum] setNs20delay:channel
-                                   withValue:[[[[hwDic objectForKey:@"tr20"] objectForKey:@"delay"] objectAtIndex:dbNum*8+channel] intValue]];
+                                   withValue:aSlotConfigBundle[aSlot].tr20.tdelay[dbNum * 8 + channel]];
             }
             
-            for (itg=0; itg<2; itg++) {
+            for( itg = 0; itg < 2; itg++ )
+            {
                 [[fec dc:dbNum] setRp2:itg
-                             withValue:[[[[hwDic objectForKey:@"tdisc"] objectForKey:@"rmp"] objectAtIndex:dbNum*2+itg] intValue]];
-
+                             withValue:aSlotConfigBundle[aSlot].tdisc.rmp[dbNum * 2 + itg]];
+                 
                 [[fec dc:dbNum] setRp1:itg
-                             withValue:[[[[hwDic objectForKey:@"tdisc"] objectForKey:@"rmpup"] objectAtIndex:dbNum*2+itg] intValue]];
-                
+                             withValue:aSlotConfigBundle[aSlot].tdisc.rmpup[dbNum * 2 + itg]];
+                 
                 [[fec dc:dbNum] setVli:itg
-                             withValue:[[[[hwDic objectForKey:@"tdisc"] objectForKey:@"vli"] objectAtIndex:dbNum*2+itg] intValue]];
-
+                             withValue:aSlotConfigBundle[aSlot].tdisc.vli[dbNum * 2 * itg]];
+                 
                 [[fec dc:dbNum] setVsi:itg
-                             withValue:[[[[hwDic objectForKey:@"tdisc"] objectForKey:@"vsi"] objectAtIndex:dbNum*2+itg] intValue]];
-                
-            }            
+                             withValue:aSlotConfigBundle[aSlot].tdisc.vsi[dbNum * 2 * itg]];
+             }
         }
     }
     
-    [fec setVRes:[[hwDic objectForKey:@"vint"] intValue]];
-    [fec setHVRef:[[hwDic objectForKey:@"hvref"] intValue]];
-
+    [fec setVRes:aSlotConfigBundle[aSlot].vint];
+    [fec setHVRef:aSlotConfigBundle[aSlot].hvref];
+    
     //unsigned char	cmos[6];	//board related	0-ISETA1 1-ISETA0 2-ISETM1 3-ISETM0 4-TACREF 5-VMAX
-    [fec setCmos:0 withValue:[[[[hwDic objectForKey:@"tcmos"] objectForKey:@"iseta"] objectAtIndex:1] intValue]];
-    [fec setCmos:1 withValue:[[[[hwDic objectForKey:@"tcmos"] objectForKey:@"iseta"] objectAtIndex:0] intValue]];
-    [fec setCmos:2 withValue:[[[[hwDic objectForKey:@"tcmos"] objectForKey:@"isetm"] objectAtIndex:1] intValue]];
-    [fec setCmos:3 withValue:[[[[hwDic objectForKey:@"tcmos"] objectForKey:@"isetm"] objectAtIndex:0] intValue]];
-    [fec setCmos:4 withValue:[[[hwDic objectForKey:@"tcmos"] objectForKey:@"vtacref"] intValue]];
-    [fec setCmos:5 withValue:[[[hwDic objectForKey:@"tcmos"] objectForKey:@"vmax"] intValue]];
+    [fec setCmos:0 withValue:aSlotConfigBundle[aSlot].tcmos.iseta[1]];
+    [fec setCmos:1 withValue:aSlotConfigBundle[aSlot].tcmos.iseta[0]];
+    [fec setCmos:2 withValue:aSlotConfigBundle[aSlot].tcmos.isetm[1]];
+    [fec setCmos:3 withValue:aSlotConfigBundle[aSlot].tcmos.isetm[0]];
+    [fec setCmos:4 withValue:aSlotConfigBundle[aSlot].tcmos.tacref];
+    [fec setCmos:5 withValue:aSlotConfigBundle[aSlot].tcmos.vmax];
 }
 
 - (void) couchDBResult:(id)aResult tag:(NSString*)aTag op:(id)anOp

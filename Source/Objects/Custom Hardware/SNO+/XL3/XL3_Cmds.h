@@ -231,6 +231,7 @@ typedef struct {
     uint16_t dc_id[4];
     unsigned char vbal[2][32];
     unsigned char vthr[32];
+    unsigned char vthr_zero[32];    // Joulien added this to the object.
     tdisc_t tdisc;
     tcmos_t tcmos;
     unsigned char vint;       // integrator output voltage 
