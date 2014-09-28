@@ -2106,6 +2106,8 @@ void SwapLongBlock(void* p, int32_t n)
             }
             else
             {
+                NSLog( @"Slot: %d, HWMB: %@ and DBMB: %@ do NOT match.\n", hwSlot, bID[0], idMB );
+                
                 dbChMatch[0] = -999;
             }
         }
@@ -2131,13 +2133,17 @@ void SwapLongBlock(void* p, int32_t n)
                     dbChMatch[ch] = -999;
                     
                     // Iterate through all DBDCs for a match.
-                    for( id k in dbDCId )
+                    unsigned char i;
+
+                    for( i = 0; i < [dbDCId count]; i++ )
                     {
+                        id k = [dbDCId objectAtIndex:i];
+
                         if( [k isEqualToString:bID[ch]] )
                         {
                             NSLog( @"!!! Found board in a different channel!\n" );
                             
-                            dbChMatch[ch] = ch;
+                            dbChMatch[ch] = i + 1;
                         }
                     }
                 }
@@ -2147,7 +2153,7 @@ void SwapLongBlock(void* p, int32_t n)
         unsigned short i, j, k;
         
         // Copy MB ECAL from DB to HW
-        if( dbChMatch[0] >= 0 && !ecalfound[hwSlot][0] || fromecaltoorca )
+        if( (dbChMatch[0] >= 0 && !ecalfound[hwSlot][0]) || fromecaltoorca )
         {
             aSlotConfigBundle[hwSlot].mb_id = 0;
             
@@ -2176,7 +2182,7 @@ void SwapLongBlock(void* p, int32_t n)
             NSLog( @"ch %d: ecalfound %d, dbch match: %d\n", ch, ecalfound[hwSlot][ch], dbChMatch[ch] );
             
             // Load ECALs found a DC config in database.
-            if( dbChMatch[ch] > 0 && !ecalfound[hwSlot][ch] || fromecaltoorca )
+            if( (dbChMatch[ch] > 0 && !ecalfound[hwSlot][ch]) || fromecaltoorca )
             {
                 unsigned short hwCh         = ch - 1;
                 unsigned short hwChFirstIdx = 8 * hwCh;
@@ -2184,11 +2190,11 @@ void SwapLongBlock(void* p, int32_t n)
                 
                 unsigned short dbCh = dbChMatch[ch] - 1; // Since dbChMatch = 0 is MB
                 
-                if( fromecaltoorca )
+/*                if( fromecaltoorca )
                 {
                     dbCh = ch - 1;
                 }
-                
+*/                
                 unsigned short dbChFirstIdx = 8 * dbCh;
                 unsigned short dbChLastIdx  = dbChFirstIdx + 8;
                 
