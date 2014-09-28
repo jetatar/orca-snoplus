@@ -2133,17 +2133,17 @@ void SwapLongBlock(void* p, int32_t n)
                     dbChMatch[ch] = -999;
                     
                     // Iterate through all DBDCs for a match.
-                    unsigned char i;
+                    unsigned char aa;
 
-                    for( i = 0; i < [dbDCId count]; i++ )
+                    for( aa = 0; aa < [dbDCId count]; aa++ )
                     {
-                        id k = [dbDCId objectAtIndex:i];
+                        id k = [dbDCId objectAtIndex:aa];
 
                         if( [k isEqualToString:bID[ch]] )
                         {
                             NSLog( @"!!! Found board in a different channel!\n" );
                             
-                            dbChMatch[ch] = i + 1;
+                            dbChMatch[ch] = aa + 1;
                         }
                     }
                 }
