@@ -2115,6 +2115,8 @@ void SwapLongBlock(void* p, int32_t n)
         //
         // Check DC entries.
         //
+        NSUInteger aa = 0;
+
         for( ch = 1; ch < 5; ch++ )
         {
             if( !ecalfound[hwSlot][ch] )
@@ -2133,7 +2135,6 @@ void SwapLongBlock(void* p, int32_t n)
                     dbChMatch[ch] = -999;
                     
                     // Iterate through all DBDCs for a match.
-                    NSUInteger aa = 0;
 
                     NSLog(@"INTEGER %d\n", aa);
                     
