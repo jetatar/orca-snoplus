@@ -2133,7 +2133,7 @@ void SwapLongBlock(void* p, int32_t n)
                     dbChMatch[ch] = -999;
                     
                     // Iterate through all DBDCs for a match.
-                    unsigned char aa;
+                    NSUInteger aa;
 
                     for( aa = 0; aa < [dbDCId count]; aa++ )
                     {
