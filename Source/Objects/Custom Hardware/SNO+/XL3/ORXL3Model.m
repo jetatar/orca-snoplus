@@ -2170,7 +2170,7 @@ void SwapLongBlock(void* p, int32_t n)
             aSlotConfigBundle[hwSlot].vint  = [[hwDic objectForKey:@"vint"] intValue];
             aSlotConfigBundle[hwSlot].hvref = [[hwDic objectForKey:@"hvref"] intValue];
             
-            if( !fromecaltoorca )
+            if( dbChMatch[0] >= 0 )
             {
                 ecalfound[hwSlot][0] = true;
             }
@@ -2193,11 +2193,15 @@ void SwapLongBlock(void* p, int32_t n)
                 if( dbChMatch[ch] > 0 )
                 {
                     dbCh = dbChMatch[ch] - 1;
+                    
+                    ecalfound[hwSlot][ch] = true;
                 }
+
                 if( fromecaltoorca && dbChMatch[ch] < 0 )
                 {
                     dbCh = ch - 1;
                 }
+                
                 unsigned short dbChFirstIdx = 8 * dbCh;
                 unsigned short dbChLastIdx  = dbChFirstIdx + 8;
                 
@@ -2245,12 +2249,7 @@ void SwapLongBlock(void* p, int32_t n)
                     aSlotConfigBundle[hwSlot].tdisc.rmpup[j] = [[[[hwDic objectForKey:@"tdisc"] objectForKey:@"rmpup"] objectAtIndex:k] intValue];
                     aSlotConfigBundle[hwSlot].tdisc.vsi[j]   = [[[[hwDic objectForKey:@"tdisc"] objectForKey:@"vsi"] objectAtIndex:k] intValue];
                     aSlotConfigBundle[hwSlot].tdisc.vli[j]   = [[[[hwDic objectForKey:@"tdisc"] objectForKey:@"vli"] objectAtIndex:k] intValue];
-                }
-                
-                if( !fromecaltoorca )
-                {
-                    ecalfound[hwSlot][ch] = true;
-                }
+                }                
             }
         }
         
