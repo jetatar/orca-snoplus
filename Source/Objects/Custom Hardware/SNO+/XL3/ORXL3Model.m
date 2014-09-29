@@ -2135,9 +2135,6 @@ void SwapLongBlock(void* p, int32_t n)
                     dbChMatch[ch] = -999;
                     
                     // Iterate through all DBDCs for a match.
-
-                    NSLog(@"INTEGER %d\n", aa);
-                    
                     for( aa = 0; aa < [dbDCId count]; aa++ )
                     {
                         id k = [dbDCId objectAtIndex:aa];
@@ -2191,13 +2188,16 @@ void SwapLongBlock(void* p, int32_t n)
                 unsigned short hwChFirstIdx = 8 * hwCh;
                 unsigned short hwChLastIdx  = hwChFirstIdx + 8;
                 
-                unsigned short dbCh = dbChMatch[ch] - 1; // Since dbChMatch = 0 is MB
+                unsigned short dbCh;
                 
-/*                if( fromecaltoorca )
+                if( dbChMatch[ch] > 0 )
+                {
+                    dbCh = dbChMatch[ch] - 1;
+                }
+                if( fromecaltoorca && dbChMatch[ch] < 0 )
                 {
                     dbCh = ch - 1;
                 }
-*/                
                 unsigned short dbChFirstIdx = 8 * dbCh;
                 unsigned short dbChLastIdx  = dbChFirstIdx + 8;
                 
