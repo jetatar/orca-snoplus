@@ -1905,9 +1905,6 @@ void SwapLongBlock(void* p, int32_t n)
             boardrequested[slot][ch]    = false;
         }
         
-        // Get HW board IDs and store them so they don't have to be requested again.
-        unsigned short val;
-        
         // Create a request string for each slot and crate.
         NSString* requestString = [NSString stringWithFormat:@"_design/penn_daq_views/_view/get_fec_by_generated?descending=true&startkey=[%d,%d,{}]&endkey=[%d,%d,\"\"]&limit=1",[self crateNumber], slot, [self crateNumber], slot];
         
@@ -1926,7 +1923,7 @@ void SwapLongBlock(void* p, int32_t n)
     // similar to [self ecalToOrcaDocumentsReceived]
     // withObject:nil - no arguments to pass
     // delay the method call for 10 seconds.
-    [self performSelector:@selector(ecalToOrcaDocumentsReceived) withObject:nil afterDelay:120.0];
+    [self performSelector:@selector(ecalToOrcaDocumentsReceived) withObject:nil afterDelay:60.0];
 }
 
 
@@ -1973,8 +1970,6 @@ void SwapLongBlock(void* p, int32_t n)
     if( !(ecalfound[hwSlot][0] && ecalfound[hwSlot][1] && ecalfound[hwSlot][2]
           && ecalfound[hwSlot][3] && ecalfound[hwSlot][4]) )
     {
-        NSArray* keyArray       = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"key"];
-        
         // Get the values of the entire table
         NSDictionary* ecalDoc   = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"doc"];
         
@@ -2012,15 +2007,7 @@ void SwapLongBlock(void* p, int32_t n)
             }
             
             [self setXl3OpsRunning:NO forKey:@"compositeBoardID"];
-
         }
-        
-        // get the document ID
-        NSString* docId         = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"id"];
-        
-        // Get DB crate and slot numbers.
-        unsigned int crate_num  = [[keyArray objectAtIndex:0] intValue];
-        //    unsigned int slot_num   = [[keyArray objectAtIndex:1] intValue];
         
         short dbChMatch[5]      = { -999, -999, -999, -999, -999 };
         
@@ -2180,8 +2167,6 @@ void SwapLongBlock(void* p, int32_t n)
         // Copy DC ECAL from DB to HW
         for( ch = 1; ch < 5; ch++ )
         {
-            NSLog( @"ch %d: ecalfound %d, dbch match: %d\n", ch, ecalfound[hwSlot][ch], dbChMatch[ch] );
-            
             // Load ECALs found a DC config in database.
             if( (dbChMatch[ch] > 0 && !ecalfound[hwSlot][ch]) || fromecaltoorca )
             {
@@ -2196,6 +2181,8 @@ void SwapLongBlock(void* p, int32_t n)
                     dbCh = dbChMatch[ch] - 1;
                     
                     ecalfound[hwSlot][ch] = true;
+
+                    NSLog( @"ch %d: ecalfound %d, dbch match: %d\n", ch, ecalfound[hwSlot][ch], dbChMatch[ch] );
                 }
 
                 if( fromecaltoorca && dbChMatch[ch] < 0 )
