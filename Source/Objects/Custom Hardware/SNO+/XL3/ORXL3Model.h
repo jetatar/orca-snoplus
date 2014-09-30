@@ -130,10 +130,9 @@ enum {
     BOOL _xl3InitInProgress;
     id <snotDbDelegate> _snotDb;
     
-    NSDictionary* boardIDRes;
-    NSDictionary* hwforBoard;
+    NSString* hwBoardID[16][5];  // Hardware board IDs.
     bool ecalfound[16][5];
-    bool boardreqested[16][5];  // make sure docbyboardid is only sent once per board.
+    bool boardrequested[16][5];  // make sure docbyboardid is only sent once per board.
     
     mb_t aSlotConfigBundle[16];
     mb_t safe_bundle[16];
@@ -264,7 +263,7 @@ enum {
 - (void) getDocbyBoardID:(NSString*) aBoardID forSlot:(unsigned int)hwSlot;
 - (void) ecalToOrcaDocumentsReceived;
 - (void) parseEcalDocument:(NSDictionary*)aResult forSlot:(unsigned int)hwSlot;
-- (void) updateUIFromEcalBundle:(NSDictionary*)aBundle slot:(unsigned int)aSlot;
+- (void) updateUIFromEcalBundle:(unsigned int)aSlot;
 - (BOOL) isRelayClosedForSlot:(unsigned int)slot pc:(unsigned int)aPC;
 
 #pragma mark •••DataTaker
