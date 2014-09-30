@@ -1891,13 +1891,13 @@ void SwapLongBlock(void* p, int32_t n)
     // i.e: create a variable setEcal_received and asign it a unsigned long 0.
     [self setEcal_received:0UL];
     
+    // Create Config Bundle for all 16 slots.
+    memset( &aSlotConfigBundle, 0, sizeof(aSlotConfigBundle) );
+    
     // Iterate through slots requesting ECAL docs for every slot in a create.
     for( slot = 0; slot < 16; slot++ )
     {
         unsigned short ch;
-
-        //        memset( &aSlotConfigBundle[hwSlot], 0, sizeof(mb_t) );
-        memset( &aSlotConfigBundle, 0, sizeof(aSlotConfigBundle) );
 
         for( ch = 0; ch < 5; ch++ )
         {
@@ -1907,29 +1907,6 @@ void SwapLongBlock(void* p, int32_t n)
         
         // Get HW board IDs and store them so they don't have to be requested again.
         unsigned short val;
-        
-        [self setXl3OpsRunning:YES forKey:@"compositeBoardID"];
-        
-        for( ch = 0; ch < 5; ch++ )
-        {
-            val = [self getBoardIDForSlot:slot chip:(ch + 1)];
-            
-            if( val == 0x0 )
-            {
-                hwBoardID[slot][ch] = @"0000";
-                
-                NSLog(@"!!! Slot: %d, Ch: %d has an invalid HW boardID!\n", slot, ch);
-            }
-            else
-            {
-                hwBoardID[slot][ch] = [NSString stringWithFormat:@"%04x", val];
-                
-                NSLog(@"Slot: %d, Ch %d Board: %@\n", slot, ch, hwBoardID[slot][ch]);
-            }
-        }
-        
-        [self setXl3OpsRunning:NO forKey:@"compositeBoardID"];
-
         
         // Create a request string for each slot and crate.
         NSString* requestString = [NSString stringWithFormat:@"_design/penn_daq_views/_view/get_fec_by_generated?descending=true&startkey=[%d,%d,{}]&endkey=[%d,%d,\"\"]&limit=1",[self crateNumber], slot, [self crateNumber], slot];
@@ -2010,6 +1987,33 @@ void SwapLongBlock(void* p, int32_t n)
             
             fromecaltoorca = true;
         }
+
+        unsigned short ch, val;
+        if( fromecaltoorca )
+        {
+            [self setXl3OpsRunning:YES forKey:@"compositeBoardID"];
+            
+            for( ch = 0; ch < 5; ch++ )
+            {
+                val = [self getBoardIDForSlot:hwSlot chip:(ch + 1)];
+                
+                if( val == 0x0 )
+                {
+                    hwBoardID[hwSlot][ch] = @"0000";
+                    
+                    NSLog(@"!!! Slot: %d, Ch: %d has an invalid HW boardID!\n", hwSlot, ch);
+                }
+                else
+                {
+                    hwBoardID[hwSlot][ch] = [NSString stringWithFormat:@"%04x", val];
+                    
+                    NSLog(@"Slot: %d, Ch %d Board: %@\n", hwSlot, ch, hwBoardID[hwSlot][ch]);
+                }
+            }
+            
+            [self setXl3OpsRunning:NO forKey:@"compositeBoardID"];
+
+        }
         
         // get the document ID
         NSString* docId         = [[[aResult objectForKey:@"rows"] objectAtIndex:0] objectForKey:@"id"];
@@ -2050,7 +2054,6 @@ void SwapLongBlock(void* p, int32_t n)
             return;
         }
 
-        unsigned short ch, val;
         //
         // Get motherboard IDs & daughter card IDs from DATABASE
         //
