@@ -2000,7 +2000,7 @@ void SwapLongBlock(void* p, int32_t n)
                 }
                 else
                 {
-                    hwBoardID[hwSlot][ch] = [NSString stringWithFormat:@"%04x", val];
+                    hwBoardID[hwSlot][ch] = [[NSString alloc] initWithFormat:@"%04x", val];
                     
                     NSLog(@"Slot: %d, Ch %d Board: %@\n", hwSlot, ch, hwBoardID[hwSlot][ch]);
                 }
