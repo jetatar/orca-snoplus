@@ -2355,10 +2355,10 @@ void SwapLongBlock(void* p, int32_t n)
                              withValue:aSlotConfigBundle[aSlot].tdisc.rmpup[dbNum * 2 + itg]];
                  
                 [[fec dc:dbNum] setVli:itg
-                             withValue:aSlotConfigBundle[aSlot].tdisc.vli[dbNum * 2 * itg]];
+                             withValue:aSlotConfigBundle[aSlot].tdisc.vli[dbNum * 2 + itg]];
                  
                 [[fec dc:dbNum] setVsi:itg
-                             withValue:aSlotConfigBundle[aSlot].tdisc.vsi[dbNum * 2 * itg]];
+                             withValue:aSlotConfigBundle[aSlot].tdisc.vsi[dbNum * 2 + itg]];
              }
         }
     }
